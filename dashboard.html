@@ -1,0 +1,3195 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TE-CDBU1 Factory Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════
+   CSS VARIABLES — Dark / Light Theme
+═══════════════════════════════════════════ */
+:root {
+  --accent:      #00d4aa;
+  --accent2:     #3b82f6;
+  --danger:      #ef4444;
+  --warning:     #f59e0b;
+  --success:     #22c55e;
+  --font-head:   'Rajdhani', sans-serif;
+  --font-body:   'Sarabun', sans-serif;
+  --radius:      10px;
+  --radius-lg:   16px;
+  --transition:  0.25s ease;
+}
+[data-theme="dark"] {
+  --bg:          #0a0e1a;
+  --bg2:         #111827;
+  --bg3:         #1a2235;
+  --bg4:         #222e45;
+  --border:      #2a3550;
+  --text:        #e2e8f0;
+  --text2:       #94a3b8;
+  --text3:       #64748b;
+  --card-glow:   0 0 30px rgba(0,212,170,0.06);
+  --sidebar-bg:  #0d1323;
+  --header-bg:   rgba(10,14,26,0.95);
+  --chart-bg:    #111827;
+}
+[data-theme="light"] {
+  --bg:          #f0f4f8;
+  --bg2:         #ffffff;
+  --bg3:         #f8fafc;
+  --bg4:         #e2e8f0;
+  --border:      #cbd5e1;
+  --text:        #0f172a;
+  --text2:       #475569;
+  --text3:       #94a3b8;
+  --card-glow:   0 4px 20px rgba(0,0,0,0.08);
+  --sidebar-bg:  #1e293b;
+  --header-bg:   rgba(255,255,255,0.95);
+  --chart-bg:    #ffffff;
+}
+
+/* ═══════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  transition: background var(--transition), color var(--transition);
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════════ */
+.sidebar {
+  width: 220px;
+  min-height: 100vh;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+  transition: width var(--transition);
+}
+.sidebar-logo {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.logo-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-head);
+  font-size: 16px; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+.logo-text { font-family: var(--font-head); font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.2; }
+.logo-sub { font-size: 10px; color: var(--text3); letter-spacing: 1.5px; text-transform: uppercase; }
+
+.sidebar-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+.nav-section { padding: 8px 14px 4px; font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 2px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 18px;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all var(--transition);
+  position: relative;
+  font-size: 13px;
+  font-family: var(--font-body);
+}
+.nav-item:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+.nav-item.active {
+  color: var(--accent);
+  background: rgba(0,212,170,0.08);
+}
+.nav-item.active::before {
+  content: '';
+  position: absolute; left: 0; top: 20%; bottom: 20%;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 0 3px 3px 0;
+}
+.nav-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+.nav-badge {
+  margin-left: auto;
+  background: var(--danger);
+  color: #fff;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.sidebar-footer {
+  padding: 14px 18px;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.theme-toggle {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; color: var(--text3); cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 20px;
+  background: var(--bg4);
+  border: 1px solid var(--border);
+  transition: all var(--transition);
+  width: 100%;
+  justify-content: center;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ═══════════════════════════════════════════
+   MAIN LAYOUT
+═══════════════════════════════════════════ */
+.main {
+  margin-left: 220px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════
+   HEADER
+═══════════════════════════════════════════ */
+.header {
+  height: 58px;
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  position: sticky; top: 0; z-index: 50;
+  backdrop-filter: blur(10px);
+}
+.header-title { font-family: var(--font-head); font-size: 18px; font-weight: 700; letter-spacing: 0.5px; flex: 1; }
+.header-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
+.date-filter {
+  display: flex; align-items: center; gap: 8px;
+}
+.date-filter input[type="date"] {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  cursor: pointer;
+}
+.date-filter label { font-size: 11px; color: var(--text3); }
+.btn-filter {
+  background: var(--accent);
+  color: #0a0e1a;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: opacity var(--transition);
+}
+.btn-filter:hover { opacity: 0.85; }
+.header-time { font-size: 11px; color: var(--text3); font-family: var(--font-head); letter-spacing: 1px; }
+
+/* ═══════════════════════════════════════════
+   CONTENT AREA
+═══════════════════════════════════════════ */
+.content {
+  flex: 1;
+  padding: 20px 24px;
+  overflow-y: auto;
+  max-height: calc(100vh - 58px);
+}
+.page { display: none; }
+.page.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+/* ═══════════════════════════════════════════
+   ALERT BANNER
+═══════════════════════════════════════════ */
+.alert-banner {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: var(--radius);
+  padding: 10px 16px;
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  animation: pulse-border 2s infinite;
+}
+@keyframes pulse-border {
+  0%,100% { border-color: rgba(239,68,68,0.3); }
+  50%      { border-color: rgba(239,68,68,0.7); }
+}
+.alert-banner .alert-icon { font-size: 16px; }
+.alert-items { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; }
+.alert-chip {
+  background: rgba(239,68,68,0.15);
+  border: 1px solid rgba(239,68,68,0.4);
+  color: #fca5a5;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════
+   KPI CARDS ROW
+═══════════════════════════════════════════ */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.kpi-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  box-shadow: var(--card-glow);
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,212,170,0.1); }
+.kpi-card::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+}
+.kpi-card.green::before  { background: var(--success); }
+.kpi-card.blue::before   { background: var(--accent2); }
+.kpi-card.red::before    { background: var(--danger); }
+.kpi-card.teal::before   { background: var(--accent); }
+.kpi-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.kpi-value { font-family: var(--font-head); font-size: 32px; font-weight: 700; line-height: 1; }
+.kpi-value.green { color: var(--success); }
+.kpi-value.blue  { color: var(--accent2); }
+.kpi-value.red   { color: var(--danger); }
+.kpi-value.teal  { color: var(--accent); }
+.kpi-sub { font-size: 11px; color: var(--text3); margin-top: 6px; }
+.kpi-icon {
+  position: absolute; right: 16px; top: 16px;
+  font-size: 28px; opacity: 0.15;
+}
+
+/* ═══════════════════════════════════════════
+   CHARTS ROW
+═══════════════════════════════════════════ */
+.charts-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  box-shadow: var(--card-glow);
+}
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.card-title { font-family: var(--font-head); font-size: 14px; font-weight: 600; letter-spacing: 0.5px; }
+.card-badge {
+  font-size: 10px; padding: 3px 10px; border-radius: 20px;
+  background: rgba(0,212,170,0.12); color: var(--accent);
+  font-weight: 600; letter-spacing: 0.5px;
+}
+.chart-container { position: relative; }
+
+/* ═══════════════════════════════════════════
+   STATION GRID
+═══════════════════════════════════════════ */
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.section-title { font-family: var(--font-head); font-size: 16px; font-weight: 600; }
+.section-count { font-size: 11px; color: var(--text3); }
+
+.station-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.station-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+.station-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0,212,170,0.12);
+}
+.station-card.alert-card {
+  border-color: rgba(239,68,68,0.4);
+  background: rgba(239,68,68,0.04);
+}
+.station-card.alert-card:hover { border-color: var(--danger); box-shadow: 0 8px 25px rgba(239,68,68,0.15); }
+.station-name {
+  font-family: var(--font-head);
+  font-size: 13px; font-weight: 600;
+  color: var(--text);
+  margin-bottom: 10px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.yield-ring {
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 10px;
+}
+.yield-value {
+  font-family: var(--font-head);
+  font-size: 26px; font-weight: 700;
+  text-align: center;
+}
+.yield-value.ok   { color: var(--success); }
+.yield-value.warn { color: var(--warning); }
+.yield-value.bad  { color: var(--danger); }
+.station-stats {
+  display: flex; gap: 6px;
+  font-size: 11px; color: var(--text3);
+}
+.stat-item { flex: 1; text-align: center; }
+.stat-num { font-family: var(--font-head); font-size: 14px; font-weight: 600; color: var(--text); display: block; }
+.station-alert-tag {
+  position: absolute; top: 8px; right: 8px;
+  background: var(--danger);
+  color: #fff; font-size: 9px; padding: 2px 6px;
+  border-radius: 4px; font-weight: 700;
+}
+.loading-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+.skeleton {
+  height: 130px;
+  background: var(--bg3);
+  border-radius: var(--radius-lg);
+  animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer {
+  0%   { opacity: 0.5; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+/* ═══════════════════════════════════════════
+   TABLE
+═══════════════════════════════════════════ */
+.table-wrap { overflow-x: auto; border-radius: var(--radius); }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+thead tr { background: var(--bg3); }
+th {
+  padding: 10px 12px; text-align: left;
+  font-family: var(--font-head); font-size: 11px; font-weight: 600;
+  color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text2);
+  transition: background var(--transition);
+}
+tr:hover td { background: rgba(255,255,255,0.025); }
+tr:last-child td { border-bottom: none; }
+.badge {
+  display: inline-block;
+  padding: 2px 8px; border-radius: 20px;
+  font-size: 10px; font-weight: 700;
+}
+.badge.pass { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+.badge.fail { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+.sn-link { color: var(--accent); cursor: pointer; text-decoration: none; }
+.sn-link:hover { text-decoration: underline; }
+
+/* Pagination */
+.pagination {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 0 0;
+  font-size: 12px; color: var(--text3);
+}
+.page-btns { display: flex; gap: 4px; }
+.page-btn {
+  padding: 5px 10px; border-radius: 6px;
+  background: var(--bg3); border: 1px solid var(--border);
+  color: var(--text2); cursor: pointer; font-size: 12px;
+  transition: all var(--transition);
+}
+.page-btn:hover { border-color: var(--accent); color: var(--accent); }
+.page-btn.active { background: var(--accent); color: #0a0e1a; border-color: var(--accent); font-weight: 700; }
+
+/* ═══════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════ */
+.modal-overlay {
+  display: none; position: fixed;
+  inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  padding: 20px;
+  overflow-y: auto;
+}
+.modal-overlay.open { display: flex; align-items: flex-start; justify-content: center; }
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  width: 100%; max-width: 1000px;
+  min-height: 300px;
+  margin: auto;
+  animation: slideUp 0.3s ease;
+}
+@keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:none; } }
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-title { font-family: var(--font-head); font-size: 16px; font-weight: 700; }
+.modal-close {
+  width: 28px; height: 28px;
+  border-radius: 50%; background: var(--bg4);
+  border: 1px solid var(--border);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--text2);
+  transition: all var(--transition);
+}
+.modal-close:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+.modal-body { padding: 20px; }
+
+/* Tabs */
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.tab {
+  padding: 9px 18px; font-size: 13px;
+  color: var(--text3); cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all var(--transition);
+  font-family: var(--font-body);
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-content { display: none; }
+.tab-content.active { display: block; animation: fadeIn 0.2s ease; }
+
+/* ═══════════════════════════════════════════
+   CpK TABLE
+═══════════════════════════════════════════ */
+.cpk-status {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-size: 10px; font-weight: 700;
+}
+.cpk-excellent { background: rgba(34,197,94,0.15); color: #4ade80; }
+.cpk-good      { background: rgba(59,130,246,0.15); color: #60a5fa; }
+.cpk-watch     { background: rgba(245,158,11,0.15); color: #fcd34d; }
+.cpk-bad       { background: rgba(239,68,68,0.15);  color: #f87171; }
+.cpk-val {
+  font-family: var(--font-head); font-size: 15px; font-weight: 700;
+}
+
+/* Export button */
+.btn-export {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(34,197,94,0.1);
+  border: 1px solid rgba(34,197,94,0.3);
+  color: var(--success);
+  padding: 7px 16px; border-radius: 8px;
+  font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all var(--transition);
+  font-family: var(--font-body);
+}
+.btn-export:hover { background: var(--success); color: #0a0e1a; border-color: var(--success); }
+
+/* ═══════════════════════════════════════════
+   SETTINGS PAGE
+═══════════════════════════════════════════ */
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.settings-section {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+}
+.settings-section-title {
+  font-family: var(--font-head); font-size: 14px; font-weight: 600;
+  margin-bottom: 14px; color: var(--accent);
+  display: flex; align-items: center; gap: 8px;
+}
+.form-row { margin-bottom: 12px; }
+.form-label { font-size: 11px; color: var(--text3); margin-bottom: 5px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
+.form-input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  transition: border-color var(--transition);
+}
+.form-input:focus { outline: none; border-color: var(--accent); }
+.station-targets { display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; }
+.target-row {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 12px;
+}
+.target-name { flex: 1; color: var(--text2); }
+.target-input {
+  width: 70px;
+  background: var(--bg3); border: 1px solid var(--border);
+  color: var(--text); padding: 5px 8px; border-radius: 6px;
+  font-family: var(--font-head); font-size: 13px; text-align: center;
+}
+.btn-save {
+  background: var(--accent); color: #0a0e1a;
+  border: none; padding: 9px 24px;
+  border-radius: 8px; font-weight: 700;
+  font-size: 13px; cursor: pointer;
+  font-family: var(--font-body);
+  transition: opacity var(--transition);
+  margin-top: 14px;
+}
+.btn-save:hover { opacity: 0.85; }
+.save-ok {
+  display: none; color: var(--success);
+  font-size: 12px; margin-top: 8px;
+}
+
+/* ═══════════════════════════════════════════
+   ALERT PAGE
+═══════════════════════════════════════════ */
+.alert-list { display: flex; flex-direction: column; gap: 10px; }
+.alert-item {
+  background: var(--bg2);
+  border: 1px solid rgba(239,68,68,0.3);
+  border-left: 4px solid var(--danger);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  display: flex; align-items: center; gap: 16px;
+}
+.alert-item.cpk-alert {
+  border-left-color: var(--warning);
+  border-color: rgba(245,158,11,0.3);
+}
+.alert-stn { font-family: var(--font-head); font-size: 15px; font-weight: 700; flex: 1; }
+.alert-yld { font-family: var(--font-head); font-size: 22px; font-weight: 700; color: var(--danger); }
+.alert-target { font-size: 11px; color: var(--text3); }
+
+/* ═══════════════════════════════════════════
+   LOADING SPINNER
+═══════════════════════════════════════════ */
+.spinner {
+  width: 32px; height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 30px auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-msg { text-align: center; color: var(--text3); font-size: 12px; padding-bottom: 20px; }
+
+/* ═══════════════════════════════════════════
+   RAW LOG
+═══════════════════════════════════════════ */
+.raw-log {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: var(--text2);
+  white-space: pre-wrap;
+  max-height: 400px;
+  overflow-y: auto;
+  line-height: 1.6;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">TE</div>
+    <div>
+      <div class="logo-text">TE-CDBU1</div>
+      <div class="logo-sub">Factory Dashboard</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Main</div>
+    <div class="nav-item active" data-page="overview">
+      <span class="nav-icon">⬡</span> Overview
+    </div>
+    <div class="nav-section">Analysis</div>
+    <div class="nav-item" data-page="station">
+      <span class="nav-icon">◫</span> Station Detail
+    </div>
+    <div class="nav-item" data-page="serial">
+      <span class="nav-icon">≡</span> Serial Detail
+    </div>
+    <div class="nav-item" data-page="cpk">
+      <span class="nav-icon">∿</span> CpK Analysis
+    </div>
+    <div class="nav-section">System</div>
+    <div class="nav-item" data-page="alerts">
+      <span class="nav-icon">⚡</span> Alerts
+      <span class="nav-badge" id="alertBadge" style="display:none">0</span>
+    </div>
+    <div class="nav-item" data-page="settings">
+      <span class="nav-icon">⚙</span> Settings
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="theme-toggle" onclick="toggleTheme()">
+      <span id="themeIcon">☀️</span>
+      <span id="themeLabel">Light Mode</span>
+    </button>
+  </div>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<main class="main">
+  <!-- Header -->
+  <header class="header">
+    <div>
+      <div class="header-title" id="pageTitle">FACTORY OVERVIEW</div>
+      <div class="header-sub" id="pageSubtitle">TE-CDBU1 Production Line — Real-time</div>
+    </div>
+    <div class="date-filter">
+      <label>From</label>
+      <input type="date" id="dateFrom" />
+      <label>To</label>
+      <input type="date" id="dateTo" />
+      <button class="btn-filter" onclick="applyFilter()">Apply</button>
+    </div>
+    <div class="header-time" id="clock">--:--:--</div>
+  </header>
+
+  <div class="content">
+
+    <!-- ═══════════ PAGE: OVERVIEW ═══════════ -->
+    <div class="page active" id="page-overview">
+      <!-- Alert Banner -->
+      <div class="alert-banner" id="alertBanner" style="display:none">
+        <span class="alert-icon">⚠️</span>
+        <div>
+          <strong style="color:#f87171;font-size:12px;">YIELD ALERT — Station ต่ำกว่า Target</strong>
+          <div class="alert-items" id="alertItems"></div>
+        </div>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="kpi-row" id="kpiRow">
+        <div class="skeleton" style="height:90px;border-radius:16px;"></div>
+        <div class="skeleton" style="height:90px;border-radius:16px;"></div>
+        <div class="skeleton" style="height:90px;border-radius:16px;"></div>
+        <div class="skeleton" style="height:90px;border-radius:16px;"></div>
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-row">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">YIELD TREND — 30 DAYS</div>
+            <div class="card-badge">REAL-TIME</div>
+          </div>
+          <div id="trendChart" style="height:200px;"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">PASS / FAIL RATIO</div>
+          </div>
+          <div id="pieChart" style="height:200px;"></div>
+        </div>
+      </div>
+
+      <!-- Station Cards -->
+      <div class="section-header">
+        <div class="section-title">STATION STATUS</div>
+        <div class="section-count" id="stationCount">Loading...</div>
+      </div>
+      <div class="station-grid" id="stationGrid">
+        <div class="loading-grid">
+          <div class="skeleton"></div><div class="skeleton"></div>
+          <div class="skeleton"></div><div class="skeleton"></div>
+          <div class="skeleton"></div><div class="skeleton"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ PAGE: STATION DETAIL ═══════════ -->
+    <div class="page" id="page-station">
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header">
+          <div class="card-title">SELECT STATION</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;" id="stationPills"></div>
+      </div>
+      <div id="stationDetail">
+        <div style="text-align:center;padding:60px;color:var(--text3);">
+          เลือก Station เพื่อดูรายละเอียด
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ PAGE: SERIAL DETAIL ═══════════ -->
+    <div class="page" id="page-serial">
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header">
+          <div class="card-title">SEARCH SERIAL NUMBER</div>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <input id="snInput" class="form-input" placeholder="พิมพ์ Serial No..." style="max-width:340px;" />
+          <button class="btn-filter" onclick="searchSerial()">ค้นหา</button>
+        </div>
+      </div>
+      <div id="serialDetail"></div>
+    </div>
+
+    <!-- ═══════════ PAGE: CPK ═══════════ -->
+    <div class="page" id="page-cpk">
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header"><div class="card-title">CpK ANALYSIS</div></div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <select id="cpkStation" class="form-input" style="max-width:240px;">
+            <option value="">— เลือก Station —</option>
+          </select>
+          <input type="date" id="cpkFrom" class="form-input" style="max-width:160px;" />
+          <input type="date" id="cpkTo"   class="form-input" style="max-width:160px;" />
+          <button class="btn-filter" onclick="loadCpk()">คำนวณ</button>
+        </div>
+      </div>
+      <div id="cpkResult"></div>
+    </div>
+
+    <!-- ═══════════ PAGE: ALERTS ═══════════ -->
+    <div class="page" id="page-alerts">
+      <div class="section-header" style="margin-bottom:16px;">
+        <div class="section-title">ACTIVE ALERTS</div>
+        <button class="btn-filter" onclick="loadAlerts()">Refresh</button>
+      </div>
+      <div id="alertList"><div class="spinner"></div></div>
+    </div>
+
+    <!-- ═══════════ PAGE: SETTINGS ═══════════ -->
+    <div class="page" id="page-settings">
+      <div class="settings-grid">
+        <!-- Yield Targets -->
+        <div class="settings-section">
+          <div class="settings-section-title">⚡ Yield Targets</div>
+          <div class="form-row">
+            <label class="form-label">Global Target (%)</label>
+            <input id="globalTarget" type="number" class="form-input" min="0" max="100" value="95" />
+          </div>
+          <div class="form-label" style="margin-bottom:8px;">Station Targets</div>
+          <div class="station-targets" id="stationTargets"></div>
+          <button class="btn-save" onclick="saveTargets()">💾 Save Targets</button>
+          <div class="save-ok" id="saveTargetOk">✅ บันทึกแล้ว</div>
+        </div>
+        <!-- Email Settings -->
+        <div class="settings-section">
+          <div class="settings-section-title">✉️ Email Alert (Outlook)</div>
+          <div class="form-row">
+            <label class="form-label">SMTP User (Email ผู้ส่ง)</label>
+            <input id="smtpUser" class="form-input" placeholder="your@company.com" />
+          </div>
+          <div class="form-row">
+            <label class="form-label">SMTP Password</label>
+            <input id="smtpPass" type="password" class="form-input" placeholder="••••••••" />
+          </div>
+          <div class="form-row">
+            <label class="form-label">ผู้รับ Alert (คั่นด้วย ;)</label>
+            <input id="alertEmails" class="form-input" placeholder="eng@co.com;mgr@co.com" />
+          </div>
+          <div class="form-row">
+            <label class="form-label">Cooldown (นาที)</label>
+            <input id="cooldown" type="number" class="form-input" value="30" />
+          </div>
+          <div class="form-row">
+            <label class="form-label">CpK Alert Threshold</label>
+            <input id="cpkThreshold" type="number" class="form-input" value="1.00" step="0.01" />
+          </div>
+          <button class="btn-save" onclick="saveEmailSettings()">💾 Save Email Settings</button>
+          <div class="save-ok" id="saveEmailOk">✅ บันทึกแล้ว</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end content -->
+</main>
+
+<!-- ═══ STATION MODAL ═══ -->
+<div class="modal-overlay" id="stationModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="stationModalTitle">Station Detail</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn-export" id="cpkExportBtn">📥 Export CpK Excel</button>
+        <div class="modal-close" onclick="closeModal('stationModal')">✕</div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="tabs">
+        <div class="tab active" data-tab="trend">📈 Trend</div>
+        <div class="tab" data-tab="pareto">📊 Top FAIL</div>
+        <div class="tab" data-tab="rows">📋 Records</div>
+        <div class="tab" data-tab="cpktab">∿ CpK</div>
+      </div>
+      <div class="tab-content active" id="tab-trend"><div id="modalTrendChart" style="height:220px;"></div></div>
+      <div class="tab-content" id="tab-pareto"><div id="modalParetoChart" style="height:220px;"></div></div>
+      <div class="tab-content" id="tab-rows">
+        <div id="modalRows"></div>
+        <div class="pagination" id="modalPagination"></div>
+      </div>
+      <div class="tab-content" id="tab-cpktab"><div id="modalCpkContent"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SERIAL MODAL ═══ -->
+<div class="modal-overlay" id="serialModal">
+  <div class="modal" style="max-width:900px;">
+    <div class="modal-header">
+      <div class="modal-title" id="serialModalTitle">Serial Detail</div>
+      <div class="modal-close" onclick="closeModal('serialModal')">✕</div>
+    </div>
+    <div class="modal-body">
+      <div id="serialInfo" style="margin-bottom:16px;"></div>
+      <div id="serialSteps"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════════ */
+const API = 'http://localhost:8000';  // ← แก้เป็น IP Backend จริง
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let state = {
+  dateFrom: '',
+  dateTo:   '',
+  stations: [],
+  currentStation: '',
+  currentPage: 1,
+  trendChart: null,
+  pieChart:   null,
+};
+
+/* ═══════════════════════════════════════════
+   CLOCK
+═══════════════════════════════════════════ */
+setInterval(() => {
+  document.getElementById('clock').textContent =
+    new Date().toLocaleTimeString('th-TH', { hour12: false });
+}, 1000);
+
+/* ═══════════════════════════════════════════
+   THEME TOGGLE
+═══════════════════════════════════════════ */
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeIcon').textContent  = isDark ? '🌙' : '☀️';
+  document.getElementById('themeLabel').textContent = isDark ? 'Dark Mode' : 'Light Mode';
+  // Re-render charts on theme change
+  if (state.trendChart) state.trendChart.dispose();
+  if (state.pieChart)   state.pieChart.dispose();
+  state.trendChart = null;
+  state.pieChart   = null;
+  loadOverview();
+}
+
+/* ═══════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════ */
+const pageTitles = {
+  overview: ['FACTORY OVERVIEW', 'TE-CDBU1 Production Line — Real-time'],
+  station:  ['STATION DETAIL', 'เลือก Station เพื่อดูรายละเอียด'],
+  serial:   ['SERIAL DETAIL', 'ค้นหาด้วย Serial Number'],
+  cpk:      ['CpK ANALYSIS', 'คำนวณ Process Capability Index'],
+  alerts:   ['ACTIVE ALERTS', 'การแจ้งเตือน Yield และ CpK'],
+  settings: ['SETTINGS', 'ตั้งค่า Target และ Email Alert'],
+};
+
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const page = item.dataset.page;
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    item.classList.add('active');
+    document.getElementById('page-' + page).classList.add('active');
+    const [t, s] = pageTitles[page] || ['', ''];
+    document.getElementById('pageTitle').textContent    = t;
+    document.getElementById('pageSubtitle').textContent = s;
+    if (page === 'alerts')   loadAlerts();
+    if (page === 'settings') loadSettings();
+  });
+});
+
+/* ═══════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════ */
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) closeModal(el.id); });
+});
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const group = tab.closest('.modal-body') || tab.closest('.page');
+    group.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const target = tab.dataset.tab;
+    group.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    const el = document.getElementById('tab-' + target);
+    if (el) el.classList.add('active');
+  });
+});
+
+/* ═══════════════════════════════════════════
+   FILTER
+═══════════════════════════════════════════ */
+function applyFilter() {
+  state.dateFrom = document.getElementById('dateFrom').value;
+  state.dateTo   = document.getElementById('dateTo').value;
+  loadOverview();
+}
+
+function dateParams() {
+  let p = '';
+  if (state.dateFrom) p += `&date_from=${state.dateFrom}`;
+  if (state.dateTo)   p += `&date_to=${state.dateTo}`;
+  return p;
+}
+
+/* ═══════════════════════════════════════════
+   API HELPER
+═══════════════════════════════════════════ */
+async function apiFetch(path) {
+  try {
+    const res = await fetch(API + path);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (e) {
+    console.error('API Error:', e);
+    return null;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   ECHARTS THEME HELPER
+═══════════════════════════════════════════ */
+function isDark() {
+  return document.documentElement.getAttribute('data-theme') === 'dark';
+}
+function chartColors() {
+  return {
+    bg:    isDark() ? '#111827' : '#ffffff',
+    text:  isDark() ? '#94a3b8' : '#64748b',
+    grid:  isDark() ? '#1a2235' : '#f1f5f9',
+    line:  isDark() ? '#2a3550' : '#e2e8f0',
+  };
+}
+
+/* ═══════════════════════════════════════════
+   OVERVIEW PAGE
+═══════════════════════════════════════════ */
+async function loadOverview() {
+  await Promise.all([loadKPI(), loadStations()]);
+  loadAlertBanner();
+}
+
+async function loadKPI() {
+  const data = await apiFetch(`/api/summary?_=${Date.now()}${dateParams()}`);
+  if (!data) return;
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="kpi-card teal">
+      <div class="kpi-label">Yield Rate</div>
+      <div class="kpi-value teal">${data.yield}%</div>
+      <div class="kpi-sub">ช่วงเวลาที่เลือก</div>
+      <span class="kpi-icon">⚡</span>
+    </div>
+    <div class="kpi-card blue">
+      <div class="kpi-label">Total Tests</div>
+      <div class="kpi-value blue">${data.total.toLocaleString()}</div>
+      <div class="kpi-sub">ชิ้นงานทั้งหมด</div>
+      <span class="kpi-icon">◫</span>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">Pass</div>
+      <div class="kpi-value green">${data.pass.toLocaleString()}</div>
+      <div class="kpi-sub">ชิ้นงานผ่าน</div>
+      <span class="kpi-icon">✓</span>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">Fail</div>
+      <div class="kpi-value red">${data.fail.toLocaleString()}</div>
+      <div class="kpi-sub">ชิ้นงานไม่ผ่าน</div>
+      <span class="kpi-icon">✕</span>
+    </div>
+  `;
+  renderPie(data.pass, data.fail);
+}
+
+async function loadStations() {
+  const data = await apiFetch(`/api/stations?_=${Date.now()}${dateParams()}`);
+  if (!data) return;
+  state.stations = data.stations;
+  const grid = document.getElementById('stationGrid');
+  document.getElementById('stationCount').textContent = `${data.stations.length} Stations`;
+
+  // Station Pills for Station Detail page
+  const pills = document.getElementById('stationPills');
+  const cpkSel = document.getElementById('cpkStation');
+  pills.innerHTML = '';
+  cpkSel.innerHTML = '<option value="">— เลือก Station —</option>';
+
+  grid.innerHTML = data.stations.map(s => {
+    const yClass = s.yield >= 95 ? 'ok' : s.yield >= 90 ? 'warn' : 'bad';
+    const isAlert = s.is_alert;
+    return `
+      <div class="station-card ${isAlert ? 'alert-card' : ''}" onclick="openStationModal('${s.station}')">
+        ${isAlert ? '<span class="station-alert-tag">⚠ ALERT</span>' : ''}
+        <div class="station-name">${s.station}</div>
+        <div class="yield-value ${yClass}">${s.yield}%</div>
+        <div class="station-stats">
+          <div class="stat-item"><span class="stat-num" style="color:var(--success)">${s.pass.toLocaleString()}</span>PASS</div>
+          <div class="stat-item"><span class="stat-num" style="color:var(--danger)">${s.fail.toLocaleString()}</span>FAIL</div>
+          <div class="stat-item"><span class="stat-num">${s.total.toLocaleString()}</span>TOTAL</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  data.stations.forEach(s => {
+    pills.innerHTML += `<button class="page-btn" onclick="openStationModal('${s.station}')" style="font-size:12px">${s.station}</button>`;
+    cpkSel.innerHTML += `<option value="${s.station}">${s.station}</option>`;
+    const tgtDiv = document.getElementById('stationTargets');
+    if (tgtDiv) {
+      // add if not already exists
+      if (!document.getElementById('tgt_' + s.station)) {
+        tgtDiv.innerHTML += `
+          <div class="target-row">
+            <span class="target-name">${s.station}</span>
+            <input id="tgt_${s.station}" class="target-input" type="number" min="0" max="100" value="${s.target}" />
+            <span style="font-size:11px;color:var(--text3)">%</span>
+          </div>`;
+      }
+    }
+  });
+
+  renderTrend(data.stations);
+}
+
+async function loadAlertBanner() {
+  const data = await apiFetch('/api/alerts');
+  if (!data || !data.alerts.length) {
+    document.getElementById('alertBanner').style.display = 'none';
+    return;
+  }
+  document.getElementById('alertBanner').style.display = 'flex';
+  document.getElementById('alertBadge').style.display  = 'inline';
+  document.getElementById('alertBadge').textContent = data.count;
+  document.getElementById('alertItems').innerHTML = data.alerts.map(a =>
+    `<span class="alert-chip">${a.station}: ${a.yield}% (Target ${a.target}%)</span>`
+  ).join('');
+}
+
+/* ═══════════════════════════════════════════
+   CHARTS
+═══════════════════════════════════════════ */
+function renderTrend(stations) {
+  const el = document.getElementById('trendChart');
+  if (!el) return;
+  if (state.trendChart) state.trendChart.dispose();
+  state.trendChart = echarts.init(el, null, { renderer: 'canvas' });
+  const c = chartColors();
+  // Mini trend per station using total as proxy
+  const names = stations.slice(0, 8).map(s => s.station.replace('_', '\n'));
+  const yields = stations.slice(0, 8).map(s => s.yield);
+  state.trendChart.setOption({
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'axis', backgroundColor: c.bg, borderColor: c.line, textStyle: { color: c.text, fontSize: 12 } },
+    grid: { left: 40, right: 10, top: 10, bottom: 50 },
+    xAxis: { type: 'category', data: names, axisLine: { lineStyle: { color: c.line } }, axisLabel: { color: c.text, fontSize: 10 } },
+    yAxis: { type: 'value', min: 80, max: 100, axisLine: { show: false }, axisLabel: { color: c.text, fontSize: 10, formatter: '{value}%' }, splitLine: { lineStyle: { color: c.line, type: 'dashed' } } },
+    series: [{
+      type: 'bar',
+      data: yields.map(v => ({ value: v, itemStyle: { color: v >= 95 ? '#22c55e' : v >= 90 ? '#f59e0b' : '#ef4444', borderRadius: [4,4,0,0] } })),
+      label: { show: true, position: 'top', formatter: '{c}%', fontSize: 10, color: c.text }
+    }]
+  });
+}
+
+function renderPie(pass, fail) {
+  const el = document.getElementById('pieChart');
+  if (!el) return;
+  if (state.pieChart) state.pieChart.dispose();
+  state.pieChart = echarts.init(el, null, { renderer: 'canvas' });
+  const c = chartColors();
+  state.pieChart.setOption({
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'item', backgroundColor: c.bg, borderColor: c.line, textStyle: { color: c.text } },
+    legend: { bottom: 0, textStyle: { color: c.text, fontSize: 11 } },
+    series: [{
+      type: 'pie', radius: ['45%', '70%'], center: ['50%', '45%'],
+      label: { show: true, fontSize: 12, color: c.text, formatter: '{d}%' },
+      data: [
+        { value: pass, name: 'PASS', itemStyle: { color: '#22c55e' } },
+        { value: fail, name: 'FAIL', itemStyle: { color: '#ef4444' } },
+      ]
+    }]
+  });
+}
+
+/* ═══════════════════════════════════════════
+   STATION MODAL (LAZY LOAD)
+═══════════════════════════════════════════ */
+async function openStationModal(station) {
+  state.currentStation = station;
+  state.currentPage = 1;
+  document.getElementById('stationModalTitle').textContent = `⬡ ${station}`;
+  document.getElementById('cpkExportBtn').onclick = () => exportCpkExcel(station);
+  openModal('stationModal');
+
+  // Reset tabs
+  document.querySelectorAll('#stationModal .tab').forEach((t,i) => t.classList.toggle('active', i===0));
+  document.querySelectorAll('#stationModal .tab-content').forEach((c,i) => c.classList.toggle('active', i===0));
+
+  document.getElementById('modalTrendChart').innerHTML = '<div class="spinner"></div>';
+  document.getElementById('modalParetoChart').innerHTML = '<div class="spinner"></div>';
+  document.getElementById('modalRows').innerHTML = '<div class="spinner"></div>';
+  document.getElementById('modalCpkContent').innerHTML = '<div class="spinner"></div>';
+
+  // Load detail & rows in parallel
+  const [detail, rows] = await Promise.all([
+    apiFetch(`/api/station/${encodeURIComponent(station)}${dateParams() ? '?' + dateParams().slice(1) : ''}`),
+    apiFetch(`/api/station/${encodeURIComponent(station)}/rows?page=1${dateParams()}`)
+  ]);
+
+  if (detail) {
+    renderModalTrend(detail.trend);
+    renderModalPareto(detail.pareto);
+  }
+  if (rows) renderModalRows(rows);
+
+  // Load CpK
+  const cpkData = await apiFetch(`/api/cpk/${encodeURIComponent(station)}${dateParams() ? '?' + dateParams().slice(1) : ''}`);
+  if (cpkData) renderModalCpk(cpkData.results);
+}
+
+function renderModalTrend(trend) {
+  const el = document.getElementById('modalTrendChart');
+  el.innerHTML = '';
+  const chart = echarts.init(el);
+  const c = chartColors();
+  const dates  = trend.map(r => r.date);
+  const passes = trend.map(r => r.pass);
+  const fails  = trend.map(r => r.fail);
+  const yields = trend.map(r => r.pass + r.fail > 0 ? +((r.pass / (r.pass + r.fail)) * 100).toFixed(1) : 0);
+  chart.setOption({
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'axis', backgroundColor: c.bg, borderColor: c.line, textStyle: { color: c.text, fontSize: 12 } },
+    legend: { data: ['Pass', 'Fail', 'Yield%'], textStyle: { color: c.text, fontSize: 11 }, top: 0 },
+    grid: { left: 40, right: 50, top: 30, bottom: 30 },
+    xAxis: { type: 'category', data: dates, axisLabel: { color: c.text, fontSize: 10 }, axisLine: { lineStyle: { color: c.line } } },
+    yAxis: [
+      { type: 'value', name: 'Count', axisLabel: { color: c.text, fontSize: 10 }, splitLine: { lineStyle: { color: c.line, type: 'dashed' } } },
+      { type: 'value', name: 'Yield%', min: 0, max: 100, axisLabel: { color: c.text, fontSize: 10, formatter: '{value}%' } }
+    ],
+    series: [
+      { name: 'Pass', type: 'bar', stack: 'total', data: passes, itemStyle: { color: '#22c55e' } },
+      { name: 'Fail', type: 'bar', stack: 'total', data: fails,  itemStyle: { color: '#ef4444' } },
+      { name: 'Yield%', type: 'line', yAxisIndex: 1, data: yields, smooth: true, symbol: 'circle', symbolSize: 5, lineStyle: { color: '#00d4aa', width: 2 }, itemStyle: { color: '#00d4aa' } }
+    ]
+  });
+}
+
+function renderModalPareto(pareto) {
+  const el = document.getElementById('modalParetoChart');
+  el.innerHTML = '';
+  if (!pareto.length) { el.innerHTML = '<div class="loading-msg">ไม่มีข้อมูล FAIL</div>'; return; }
+  const chart = echarts.init(el);
+  const c = chartColors();
+  chart.setOption({
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'axis', backgroundColor: c.bg, borderColor: c.line, textStyle: { color: c.text, fontSize: 11 } },
+    grid: { left: 10, right: 10, top: 10, bottom: 80, containLabel: true },
+    xAxis: { type: 'category', data: pareto.map(r => r.step), axisLabel: { color: c.text, fontSize: 9, rotate: 30 }, axisLine: { lineStyle: { color: c.line } } },
+    yAxis: { type: 'value', axisLabel: { color: c.text, fontSize: 10 }, splitLine: { lineStyle: { color: c.line, type: 'dashed' } } },
+    series: [{ type: 'bar', data: pareto.map(r => r.count), itemStyle: { color: '#ef4444', borderRadius: [4,4,0,0] }, label: { show: true, position: 'top', fontSize: 10, color: c.text } }]
+  });
+}
+
+async function loadModalPage(page) {
+  state.currentPage = page;
+  document.getElementById('modalRows').innerHTML = '<div class="spinner"></div>';
+  const rows = await apiFetch(`/api/station/${encodeURIComponent(state.currentStation)}/rows?page=${page}${dateParams()}`);
+  if (rows) renderModalRows(rows);
+}
+
+function renderModalRows(data) {
+  const { rows, total, page, total_pages } = data;
+  document.getElementById('modalRows').innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Serial No</th><th>Model</th><th>Result</th>
+          <th>Total Steps</th><th>Pass</th><th>Fail</th>
+          <th>Start Time</th><th>Elapsed</th>
+        </tr></thead>
+        <tbody>
+          ${rows.map(r => `
+            <tr>
+              <td><a class="sn-link" onclick="openSerialModal('${r.serial_no}')">${r.serial_no}</a></td>
+              <td>${r.model || '-'}</td>
+              <td><span class="badge ${r.result === 'PASS' ? 'pass' : 'fail'}">${r.result}</span></td>
+              <td style="text-align:center">${r.total_steps || 0}</td>
+              <td style="text-align:center;color:var(--success)">${r.pass_steps || 0}</td>
+              <td style="text-align:center;color:var(--danger)">${r.fail_steps || 0}</td>
+              <td>${r.start_time || '-'}</td>
+              <td>${r.elapsed || '-'}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+
+  // Pagination
+  const pgEl = document.getElementById('modalPagination');
+  const maxBtn = 7;
+  let btns = '';
+  for (let i = 1; i <= Math.min(total_pages, maxBtn); i++) {
+    btns += `<button class="page-btn ${i === page ? 'active' : ''}" onclick="loadModalPage(${i})">${i}</button>`;
+  }
+  if (total_pages > maxBtn) btns += `<span style="color:var(--text3);font-size:11px;padding:0 6px;">... ${total_pages}</span>`;
+  pgEl.innerHTML = `<span>${total.toLocaleString()} records</span><div class="page-btns">${btns}</div>`;
+}
+
+function renderModalCpk(results) {
+  const el = document.getElementById('modalCpkContent');
+  if (!results.length) { el.innerHTML = '<div class="loading-msg" style="padding:30px">ไม่มีข้อมูล Step ที่มี USL/LSL</div>'; return; }
+  const statusClass = s => ({ 'ดีมาก': 'cpk-excellent', 'ดี': 'cpk-good', 'เฝ้าระวัง': 'cpk-watch', 'ต้องแก้ไข': 'cpk-bad' }[s] || '');
+  el.innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>#</th><th>Step Name</th><th>N</th><th>Mean</th><th>Std Dev</th>
+          <th>LSL</th><th>USL</th><th>Cp</th><th>CpK</th><th>Status</th>
+        </tr></thead>
+        <tbody>
+          ${results.map((r,i) => `
+            <tr>
+              <td>${i+1}</td>
+              <td style="font-size:11px;max-width:250px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${r.step_name}">${r.step_name}</td>
+              <td style="text-align:center">${r.n}</td>
+              <td>${r.mean.toFixed(4)}</td>
+              <td>${r.std.toFixed(5)}</td>
+              <td>${r.lsl}</td>
+              <td>${r.usl}</td>
+              <td>${r.cp.toFixed(3)}</td>
+              <td><span class="cpk-val ${statusClass(r.status)}">${r.cpk.toFixed(3)}</span></td>
+              <td><span class="cpk-status ${statusClass(r.status)}">${r.status}</span></td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function exportCpkExcel(station) {
+  let url = `${API}/api/cpk/${encodeURIComponent(station)}/export`;
+  const params = dateParams();
+  if (params) url += '?' + params.slice(1);
+  window.location.href = url;
+}
+
+/* ═══════════════════════════════════════════
+   SERIAL MODAL (LAZY LOAD)
+═══════════════════════════════════════════ */
+async function openSerialModal(sn) {
+  document.getElementById('serialModalTitle').textContent = `≡ ${sn}`;
+  document.getElementById('serialInfo').innerHTML  = '<div class="spinner"></div>';
+  document.getElementById('serialSteps').innerHTML = '';
+  openModal('serialModal');
+
+  const data = await apiFetch(`/api/serial/${encodeURIComponent(sn)}`);
+  if (!data || !data.header) {
+    document.getElementById('serialInfo').innerHTML = '<div class="loading-msg">ไม่พบข้อมูล</div>';
+    return;
+  }
+  const h = data.header;
+  const resultColor = h.result === 'PASS' ? 'var(--success)' : 'var(--danger)';
+  document.getElementById('serialInfo').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;">
+      ${[['Serial No', h.serial_no],['Model', h.model],['Station', h.station],['Tester', h.tester],
+         ['Start Time', h.start_time],['Elapsed', h.elapsed],['Work Order', h.work_order],['Line', h.line]
+        ].map(([l,v]) => `<div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;">
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">${l}</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text)">${v || '-'}</div>
+        </div>`).join('')}
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:14px;">
+      <div style="background:rgba(0,212,170,0.08);border:1px solid var(--accent);border-radius:8px;padding:10px 16px;text-align:center;min-width:80px;">
+        <div style="font-family:var(--font-head);font-size:28px;font-weight:700;color:${resultColor}">${h.result}</div>
+        <div style="font-size:10px;color:var(--text3)">RESULT</div>
+      </div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 16px;text-align:center;min-width:70px;">
+        <div style="font-family:var(--font-head);font-size:22px;font-weight:700">${h.total_steps}</div>
+        <div style="font-size:10px;color:var(--text3)">TOTAL</div>
+      </div>
+      <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);border-radius:8px;padding:10px 16px;text-align:center;min-width:70px;">
+        <div style="font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--success)">${h.pass_steps}</div>
+        <div style="font-size:10px;color:var(--text3)">PASS</div>
+      </div>
+      <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:10px 16px;text-align:center;min-width:70px;">
+        <div style="font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--danger)">${h.fail_steps}</div>
+        <div style="font-size:10px;color:var(--text3)">FAIL</div>
+      </div>
+    </div>`;
+
+  // Steps Table
+  document.getElementById('serialSteps').innerHTML = `
+    <div class="table-wrap" style="max-height:380px;overflow-y:auto;">
+      <table>
+        <thead><tr>
+          <th>#</th><th>Step Name</th><th>Result</th>
+          <th>Value</th><th>Unit</th><th>LSL</th><th>USL</th><th>Raw Log</th>
+        </tr></thead>
+        <tbody>
+          ${data.steps.map(s => `
+            <tr style="${s.result === 'FAIL' ? 'background:rgba(239,68,68,0.05)' : ''}">
+              <td style="text-align:center;font-family:var(--font-head)">${s.step_no || '-'}</td>
+              <td style="font-size:11px;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${s.step_name}">${s.step_name}</td>
+              <td><span class="badge ${s.result === 'PASS' ? 'pass' : 'fail'}">${s.result}</span></td>
+              <td style="font-family:var(--font-head);font-size:13px">${s.value != null ? s.value.toFixed(4) : '-'}</td>
+              <td>${s.unit || '-'}</td>
+              <td>${s.lsl != null ? s.lsl : '-'}</td>
+              <td>${s.usl != null ? s.usl : '-'}</td>
+              <td>${s.raw_block ? `<button class="page-btn" style="font-size:10px;padding:3px 8px" onclick="showRaw(this, \`${btoa(unescape(encodeURIComponent(s.raw_block.slice(0,3000))))}\`)">View</button>` : '-'}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function showRaw(btn, b64) {
+  const raw = decodeURIComponent(escape(atob(b64)));
+  const div = document.createElement('div');
+  div.className = 'raw-log';
+  div.style.marginTop = '8px';
+  div.textContent = raw;
+  const row = btn.closest('tr');
+  const existing = row.nextElementSibling;
+  if (existing && existing.classList.contains('raw-row')) { existing.remove(); btn.textContent = 'View'; return; }
+  const tr = document.createElement('tr');
+  tr.className = 'raw-row';
+  tr.innerHTML = `<td colspan="8" style="padding:0;">${div.outerHTML}</td>`;
+  row.after(tr);
+  btn.textContent = 'Close';
+}
+
+/* ═══════════════════════════════════════════
+   SERIAL SEARCH
+═══════════════════════════════════════════ */
+function searchSerial() {
+  const sn = document.getElementById('snInput').value.trim();
+  if (!sn) return;
+  openSerialModal(sn);
+}
+document.getElementById('snInput').addEventListener('keydown', e => { if (e.key === 'Enter') searchSerial(); });
+
+/* ═══════════════════════════════════════════
+   CpK PAGE
+═══════════════════════════════════════════ */
+async function loadCpk() {
+  const station = document.getElementById('cpkStation').value;
+  if (!station) return;
+  const from = document.getElementById('cpkFrom').value;
+  const to   = document.getElementById('cpkTo').value;
+  let url = `/api/cpk/${encodeURIComponent(station)}`;
+  const params = [];
+  if (from) params.push(`date_from=${from}`);
+  if (to)   params.push(`date_to=${to}`);
+  if (params.length) url += '?' + params.join('&');
+
+  document.getElementById('cpkResult').innerHTML = '<div class="spinner"></div>';
+  const data = await apiFetch(url);
+  if (!data) { document.getElementById('cpkResult').innerHTML = '<div class="loading-msg">โหลดไม่สำเร็จ</div>'; return; }
+
+  const statusClass = s => ({ 'ดีมาก': 'cpk-excellent', 'ดี': 'cpk-good', 'เฝ้าระวัง': 'cpk-watch', 'ต้องแก้ไข': 'cpk-bad' }[s] || '');
+  document.getElementById('cpkResult').innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">CpK — ${station} (${data.count} Steps)</div>
+        <button class="btn-export" onclick="window.location.href='${API}/api/cpk/${encodeURIComponent(station)}/export${params.length ? '?'+params.join('&') : ''}'">
+          📥 Export Excel
+        </button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>#</th><th>Step Name</th><th>N</th><th>Mean</th><th>Std</th>
+            <th>Min</th><th>Max</th><th>LSL</th><th>USL</th><th>Cp</th><th>Cpu</th><th>Cpl</th><th>CpK</th><th>Status</th>
+          </tr></thead>
+          <tbody>
+            ${data.results.map((r,i) => `
+              <tr>
+                <td>${i+1}</td>
+                <td style="font-size:11px;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${r.step_name}">${r.step_name}</td>
+                <td style="text-align:center">${r.n}</td>
+                <td>${r.mean.toFixed(4)}</td>
+                <td>${r.std.toFixed(5)}</td>
+                <td>${r.min_val.toFixed(4)}</td>
+                <td>${r.max_val.toFixed(4)}</td>
+                <td>${r.lsl}</td><td>${r.usl}</td>
+                <td>${r.cp.toFixed(3)}</td>
+                <td>${r.cpu.toFixed(3)}</td>
+                <td>${r.cpl.toFixed(3)}</td>
+                <td><span class="cpk-val ${statusClass(r.status)}">${r.cpk.toFixed(3)}</span></td>
+                <td><span class="cpk-status ${statusClass(r.status)}">${r.status}</span></td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+/* ═══════════════════════════════════════════
+   ALERTS PAGE
+═══════════════════════════════════════════ */
+async function loadAlerts() {
+  const data = await apiFetch('/api/alerts');
+  const el = document.getElementById('alertList');
+  if (!data || !data.alerts.length) {
+    el.innerHTML = `<div style="text-align:center;padding:60px;color:var(--success);font-size:15px;">✅ ไม่มี Alert ตอนนี้ — ทุก Station ผ่าน Target</div>`;
+    return;
+  }
+  el.innerHTML = `<div class="alert-list">
+    ${data.alerts.map(a => `
+      <div class="alert-item">
+        <div>
+          <div class="alert-stn">${a.station}</div>
+          <div style="font-size:11px;color:var(--text3)">Total: ${a.total} | Pass: ${a.pass} | Fail: ${a.fail}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="alert-yld">${a.yield}%</div>
+          <div class="alert-target">Target: ${a.target}%</div>
+          <div style="font-size:11px;color:var(--danger);font-weight:700">Δ ${(a.yield - a.target).toFixed(1)}%</div>
+        </div>
+      </div>`).join('')}
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════
+   SETTINGS PAGE
+═══════════════════════════════════════════ */
+async function loadSettings() {
+  const data = await apiFetch('/api/settings');
+  if (!data) return;
+  if (data.yield_target_ALL) document.getElementById('globalTarget').value = data.yield_target_ALL;
+  if (data.alert_emails)     document.getElementById('alertEmails').value  = data.alert_emails;
+  if (data.alert_cooldown_minutes) document.getElementById('cooldown').value = data.alert_cooldown_minutes;
+  if (data.cpk_alert_threshold)   document.getElementById('cpkThreshold').value = data.cpk_alert_threshold;
+  if (data.smtp_user)        document.getElementById('smtpUser').value = data.smtp_user;
+}
+
+async function saveTargets() {
+  const settings = [{ key: 'yield_target_ALL', value: document.getElementById('globalTarget').value, description: 'Yield Target รวม' }];
+  state.stations.forEach(s => {
+    const el = document.getElementById('tgt_' + s.station);
+    if (el) settings.push({ key: `yield_target_${s.station}`, value: el.value, description: `Target ${s.station}` });
+  });
+  const res = await fetch(`${API}/api/settings`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ settings })
+  });
+  if (res.ok) { document.getElementById('saveTargetOk').style.display = 'block'; setTimeout(() => document.getElementById('saveTargetOk').style.display = 'none', 3000); }
+}
+
+async function saveEmailSettings() {
+  const settings = [
+    { key: 'smtp_user',              value: document.getElementById('smtpUser').value,    description: 'SMTP User' },
+    { key: 'smtp_password',          value: document.getElementById('smtpPass').value,    description: 'SMTP Password' },
+    { key: 'alert_emails',           value: document.getElementById('alertEmails').value, description: 'Alert Recipients' },
+    { key: 'alert_cooldown_minutes', value: document.getElementById('cooldown').value,    description: 'Cooldown' },
+    { key: 'cpk_alert_threshold',    value: document.getElementById('cpkThreshold').value,description: 'CpK Threshold' },
+  ];
+  const res = await fetch(`${API}/api/settings`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ settings })
+  });
+  if (res.ok) { document.getElementById('saveEmailOk').style.display = 'block'; setTimeout(() => document.getElementById('saveEmailOk').style.display = 'none', 3000); }
+}
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+// Set default date range (today)
+const today = new Date().toISOString().slice(0, 10);
+const month = new Date(); month.setDate(1);
+document.getElementById('dateFrom').value = month.toISOString().slice(0,10);
+document.getElementById('dateTo').value   = today;
+state.dateFrom = document.getElementById('dateFrom').value;
+state.dateTo   = today;
+
+loadOverview();
+
+// Auto refresh KPI every 30s
+setInterval(() => {
+  if (document.querySelector('.nav-item.active')?.dataset.page === 'overview') {
+    loadKPI();
+    loadAlertBanner();
+  }
+}, 30000);
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="th" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TE-CDBU1 Factory Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════
+   CSS VARIABLES — Dark / Light Theme
+═══════════════════════════════════════════ */
+:root {
+  --accent:      #00d4aa;
+  --accent2:     #3b82f6;
+  --danger:      #ef4444;
+  --warning:     #f59e0b;
+  --success:     #22c55e;
+  --font-head:   'Rajdhani', sans-serif;
+  --font-body:   'Sarabun', sans-serif;
+  --radius:      10px;
+  --radius-lg:   16px;
+  --transition:  0.25s ease;
+}
+[data-theme="dark"] {
+  --bg:          #0a0e1a;
+  --bg2:         #111827;
+  --bg3:         #1a2235;
+  --bg4:         #222e45;
+  --border:      #2a3550;
+  --text:        #e2e8f0;
+  --text2:       #94a3b8;
+  --text3:       #64748b;
+  --card-glow:   0 0 30px rgba(0,212,170,0.06);
+  --sidebar-bg:  #0d1323;
+  --header-bg:   rgba(10,14,26,0.95);
+  --chart-bg:    #111827;
+}
+[data-theme="light"] {
+  --bg:          #f0f4f8;
+  --bg2:         #ffffff;
+  --bg3:         #f8fafc;
+  --bg4:         #e2e8f0;
+  --border:      #cbd5e1;
+  --text:        #0f172a;
+  --text2:       #475569;
+  --text3:       #94a3b8;
+  --card-glow:   0 4px 20px rgba(0,0,0,0.08);
+  --sidebar-bg:  #1e293b;
+  --header-bg:   rgba(255,255,255,0.95);
+  --chart-bg:    #ffffff;
+}
+
+/* ═══════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  transition: background var(--transition), color var(--transition);
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════════ */
+.sidebar {
+  width: 220px;
+  min-height: 100vh;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+  transition: width var(--transition);
+}
+.sidebar-logo {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.logo-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-head);
+  font-size: 16px; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+.logo-text { font-family: var(--font-head); font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.2; }
+.logo-sub { font-size: 10px; color: var(--text3); letter-spacing: 1.5px; text-transform: uppercase; }
+
+.sidebar-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+.nav-section { padding: 8px 14px 4px; font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 2px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 18px;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all var(--transition);
+  position: relative;
+  font-size: 13px;
+  font-family: var(--font-body);
+}
+.nav-item:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+.nav-item.active {
+  color: var(--accent);
+  background: rgba(0,212,170,0.08);
+}
+.nav-item.active::before {
+  content: '';
+  position: absolute; left: 0; top: 20%; bottom: 20%;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 0 3px 3px 0;
+}
+.nav-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+.nav-badge {
+  margin-left: auto;
+  background: var(--danger);
+  color: #fff;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.sidebar-footer {
+  padding: 14px 18px;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.theme-toggle {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; color: var(--text3); cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 20px;
+  background: var(--bg4);
+  border: 1px solid var(--border);
+  transition: all var(--transition);
+  width: 100%;
+  justify-content: center;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ═══════════════════════════════════════════
+   MAIN LAYOUT
+═══════════════════════════════════════════ */
+.main {
+  margin-left: 220px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════
+   HEADER
+═══════════════════════════════════════════ */
+.header {
+  height: 58px;
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  position: sticky; top: 0; z-index: 50;
+  backdrop-filter: blur(10px);
+}
+.header-title { font-family: var(--font-head); font-size: 18px; font-weight: 700; letter-spacing: 0.5px; flex: 1; }
+.header-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
+.date-filter {
+  display: flex; align-items: center; gap: 8px;
+}
+.date-filter input[type="date"] {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  cursor: pointer;
+}
+.date-filter label { font-size: 11px; color: var(--text3); }
+.btn-filter {
+  background: var(--accent);
+  color: #0a0e1a;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: opacity var(--transition);
+}
+.btn-filter:hover { opacity: 0.85; }
+.header-time { font-size: 11px; color: var(--text3); font-family: var(--font-head); letter-spacing: 1px; }
+
+/* ═══════════════════════════════════════════
+   CONTENT AREA
+═══════════════════════════════════════════ */
+.content {
+  flex: 1;
+  padding: 20px 24px;
+  overflow-y: auto;
+  max-height: calc(100vh - 58px);
+}
+.page { display: none; }
+.page.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+/* ═══════════════════════════════════════════
+   ALERT BANNER
+═══════════════════════════════════════════ */
+.alert-banner {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: var(--radius);
+  padding: 10px 16px;
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  animation: pulse-border 2s infinite;
+}
+@keyframes pulse-border {
+  0%,100% { border-color: rgba(239,68,68,0.3); }
+  50%      { border-color: rgba(239,68,68,0.7); }
+}
+.alert-banner .alert-icon { font-size: 16px; }
+.alert-items { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; }
+.alert-chip {
+  background: rgba(239,68,68,0.15);
+  border: 1px solid rgba(239,68,68,0.4);
+  color: #fca5a5;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════
+   KPI CARDS ROW
+═══════════════════════════════════════════ */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.kpi-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  box-shadow: var(--card-glow);
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,212,170,0.1); }
+.kpi-card::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+}
+.kpi-card.green::before  { background: var(--success); }
+.kpi-card.blue::before   { background: var(--accent2); }
+.kpi-card.red::before    { background: var(--danger); }
+.kpi-card.teal::before   { background: var(--accent); }
+.kpi-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.kpi-value { font-family: var(--font-head); font-size: 32px; font-weight: 700; line-height: 1; }
+.kpi-value.green { color: var(--success); }
+.kpi-value.blue  { color: var(--accent2); }
+.kpi-value.red   { color: var(--danger); }
+.kpi-value.teal  { color: var(--accent); }
+.kpi-sub { font-size: 11px; color: var(--text3); margin-top: 6px; }
+.kpi-icon {
+  position: absolute; right: 16px; top: 16px;
+  font-size: 28px; opacity: 0.15;
+}
+
+/* ═══════════════════════════════════════════
+   CHARTS ROW
+═══════════════════════════════════════════ */
+.charts-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  box-shadow: var(--card-glow);
+}
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.card-title { font-family: var(--font-head); font-size: 14px; font-weight: 600; letter-spacing: 0.5px; }
+.card-badge {
+  font-size: 10px; padding: 3px 10px; border-radius: 20px;
+  background: rgba(0,212,170,0.12); color: var(--accent);
+  font-weight: 600; letter-spacing: 0.5px;
+}
+.chart-container { position: relative; }
+
+/* ═══════════════════════════════════════════
+   STATION GRID
+═══════════════════════════════════════════ */
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.section-title { font-family: var(--font-head); font-size: 16px; font-weight: 600; }
+.section-count { font-size: 11px; color: var(--text3); }
+
+.station-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.station-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+.station-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0,212,170,0.12);
+}
+.station-card.alert-card {
+  border-color: rgba(239,68,68,0.4);
+  background: rgba(239,68,68,0.04);
+}
+.station-card.alert-card:hover { border-color: var(--danger); box-shadow: 0 8px 25px rgba(239,68,68,0.15); }
+.station-name {
+  font-family: var(--font-head);
+  font-size: 13px; font-weight: 600;
+  color: var(--text);
+  margin-bottom: 10px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.yield-ring {
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 10px;
+}
+.yield-value {
+  font-family: var(--font-head);
+  font-size: 26px; font-weight: 700;
+  text-align: center;
+}
+.yield-value.ok   { color: var(--success); }
+.yield-value.warn { color: var(--warning); }
+.yield-value.bad  { color: var(--danger); }
+.station-stats {
+  display: flex; gap: 6px;
+  font-size: 11px; color: var(--text3);
+}
+.stat-item { flex: 1; text-align: center; }
+.stat-num { font-family: var(--font-head); font-size: 14px; font-weight: 600; color: var(--text); display: block; }
+.station-alert-tag {
+  position: absolute; top: 8px; right: 8px;
+  background: var(--danger);
+  color: #fff; font-size: 9px; padding: 2px 6px;
+  border-radius: 4px; font-weight: 700;
+}
+.loading-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+.skeleton {
+  height: 130px;
+  background: var(--bg3);
+  border-radius: var(--radius-lg);
+  animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer {
+  0%   { opacity: 0.5; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+/* ═══════════════════════════════════════════
+   TABLE
+═══════════════════════════════════════════ */
+.table-wrap { overflow-x: auto; border-radius: var(--radius); }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+thead tr { background: var(--bg3); }
+th {
+  padding: 10px 12px; text-align: left;
+  font-family: var(--font-head); font-size: 11px; font-weight: 600;
+  color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text2);
+  transition: background var(--transition);
+}
+tr:hover td { background: rgba(255,255,255,0.025); }
+tr:last-child td { border-bottom: none; }
+.badge {
+  display: inline-block;
+  padding: 2px 8px; border-radius: 20px;
+  font-size: 10px; font-weight: 700;
+}
+.badge.pass { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+.badge.fail { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+.sn-link { color: var(--accent); cursor: pointer; text-decoration: none; }
+.sn-link:hover { text-decoration: underline; }
+
+/* Pagination */
+.pagination {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 0 0;
+  font-size: 12px; color: var(--text3);
+}
+.page-btns { display: flex; gap: 4px; }
+.page-btn {
+  padding: 5px 10px; border-radius: 6px;
+  background: var(--bg3); border: 1px solid var(--border);
+  color: var(--text2); cursor: pointer; font-size: 12px;
+  transition: all var(--transition);
+}
+.page-btn:hover { border-color: var(--accent); color: var(--accent); }
+.page-btn.active { background: var(--accent); color: #0a0e1a; border-color: var(--accent); font-weight: 700; }
+
+/* ═══════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════ */
+.modal-overlay {
+  display: none; position: fixed;
+  inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  padding: 20px;
+  overflow-y: auto;
+}
+.modal-overlay.open { display: flex; align-items: flex-start; justify-content: center; }
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  width: 100%; max-width: 1000px;
+  min-height: 300px;
+  margin: auto;
+  animation: slideUp 0.3s ease;
+}
+@keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:none; } }
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-title { font-family: var(--font-head); font-size: 16px; font-weight: 700; }
+.modal-close {
+  width: 28px; height: 28px;
+  border-radius: 50%; background: var(--bg4);
+  border: 1px solid var(--border);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--text2);
+  transition: all var(--transition);
+}
+.modal-close:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+.modal-body { padding: 20px; }
+
+/* Tabs */
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.tab {
+  padding: 9px 18px; font-size: 13px;
+  color: var(--text3); cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all var(--transition);
+  font-family: var(--font-body);
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-content { display: none; }
+.tab-content.active { display: block; animation: fadeIn 0.2s ease; }
+
+/* ═══════════════════════════════════════════
+   CpK TABLE
+═══════════════════════════════════════════ */
+.cpk-status {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-size: 10px; font-weight: 700;
+}
+.cpk-excellent { background: rgba(34,197,94,0.15); color: #4ade80; }
+.cpk-good      { background: rgba(59,130,246,0.15); color: #60a5fa; }
+.cpk-watch     { background: rgba(245,158,11,0.15); color: #fcd34d; }
+.cpk-bad       { background: rgba(239,68,68,0.15);  color: #f87171; }
+.cpk-val {
+  font-family: var(--font-head); font-size: 15px; font-weight: 700;
+}
+
+/* Export button */
+.btn-export {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(34,197,94,0.1);
+  border: 1px solid rgba(34,197,94,0.3);
+  color: var(--success);
+  padding: 7px 16px; border-radius: 8px;
+  font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all var(--transition);
+  font-family: var(--font-body);
+}
+.btn-export:hover { background: var(--success); color: #0a0e1a; border-color: var(--success); }
+
+/* ═══════════════════════════════════════════
+   SETTINGS PAGE
+═══════════════════════════════════════════ */
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.settings-section {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+}
+.settings-section-title {
+  font-family: var(--font-head); font-size: 14px; font-weight: 600;
+  margin-bottom: 14px; color: var(--accent);
+  display: flex; align-items: center; gap: 8px;
+}
+.form-row { margin-bottom: 12px; }
+.form-label { font-size: 11px; color: var(--text3); margin-bottom: 5px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
+.form-input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  transition: border-color var(--transition);
+}
+.form-input:focus { outline: none; border-color: var(--accent); }
+.station-targets { display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; }
+.target-row {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 12px;
+}
+.target-name { flex: 1; color: var(--text2); }
+.target-input {
+  width: 70px;
+  background: var(--bg3); border: 1px solid var(--border);
+  color: var(--text); padding: 5px 8px; border-radius: 6px;
+  font-family: var(--font-head); font-size: 13px; text-align: center;
+}
+.btn-save {
+  background: var(--accent); color: #0a0e1a;
+  border: none; padding: 9px 24px;
+  border-radius: 8px; font-weight: 700;
+  font-size: 13px; cursor: pointer;
+  font-family: var(--font-body);
+  transition: opacity var(--transition);
+  margin-top: 14px;
+}
+.btn-save:hover { opacity: 0.85; }
+.save-ok {
+  display: none; color: var(--success);
+  font-size: 12px; margin-top: 8px;
+}
+
+/* ═══════════════════════════════════════════
+   ALERT PAGE
+═══════════════════════════════════════════ */
+.alert-list { display: flex; flex-direction: column; gap: 10px; }
+.alert-item {
+  background: var(--bg2);
+  border: 1px solid rgba(239,68,68,0.3);
+  border-left: 4px solid var(--danger);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  display: flex; align-items: center; gap: 16px;
+}
+.alert-item.cpk-alert {
+  border-left-color: var(--warning);
+  border-color: rgba(245,158,11,0.3);
+}
+.alert-stn { font-family: var(--font-head); font-size: 15px; font-weight: 700; flex: 1; }
+.alert-yld { font-family: var(--font-head); font-size: 22px; font-weight: 700; color: var(--danger); }
+.alert-target { font-size: 11px; color: var(--text3); }
+
+/* ═══════════════════════════════════════════
+   LOADING SPINNER
+═══════════════════════════════════════════ */
+.spinner {
+  width: 32px; height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 30px auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-msg { text-align: center; color: var(--text3); font-size: 12px; padding-bottom: 20px; }
+
+/* ═══════════════════════════════════════════
+   RAW LOG
+═══════════════════════════════════════════ */
+.raw-log {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: var(--text2);
+  white-space: pre-wrap;
+  max-height: 400px;
+  overflow-y: auto;
+  line-height: 1.6;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">TE</div>
+    <div>
+      <div class="logo-text">TE-CDBU1</div>
+      <div class="logo-sub">Factory Dashboard</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Main</div>
+    <div class="nav-item active" data-page="overview">
+      <span class="nav-icon">⬡</span> Overview
+    </div>
+    <div class="nav-section">Analysis</div>
+    <div class="nav-item" data-page="station">
+      <span class="nav-icon">◫</span> Station Detail
+    </div>
+    <div class="nav-item" data-page="serial">
+      <span class="nav-icon">≡</span> Serial Detail
+    </div>
+    <div class="nav-item" data-page="cpk">
+      <span class="nav-icon">∿</span> CpK Analysis
+    </div>
+    <div class="nav-section">System</div>
+    <div class="nav-item" data-page="alerts">
+      <span class="nav-icon">⚡</span> Alerts
+      <span class="nav-badge" id="alertBadge" style="display:none">0</span>
+    </div>
+    <div class="nav-item" data-page="settings">
+      <span class="nav-icon">⚙</span> Settings
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="theme-toggle" onclick="toggleTheme()">
+      <span id="themeIcon">☀️</span>
+      <span id="themeLabel">Light Mode</span>
+    </button>
+  </div>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<main class="main">
+  <!-- Header -->
+  <header class="header">
+    <div>
+      <div class="header-title" id="pageTitle">FACTORY OVERVIEW</div>
+      <div class="header-sub" id="pageSubtitle">TE-CDBU1 Production Line — Real-time</div>
+    </div>
+    <div class="date-filter">
+      <label>From</label>
+      <input type="date" id="dateFrom" />
+      <label>To</label>
+      <input type="date" id="dateTo" />
+      <button class="btn-filter" onclick="applyFilter()">Apply</button>
+    </div>
+    <div class="header-time" id="clock">--:--:--</div>
+  </header>
+
+  <div class="content">
+
+    <!-- ═══════════ PAGE: OVERVIEW ═══════════ -->
+    <div class="page active" id="page-overview">
+      <!-- Alert Banner -->
+      <div class="alert-banner" id="alertBanner" style="display:none">
+        <span class="alert-icon">⚠️</span>
+        <div>
+          <strong style="color:#f87171;font-size:12px;">YIELD ALERT — Station ต่ำกว่า Target</strong>
+          <div class="alert-items" id="alertItems"></div>
+        </div>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="kpi-row" id="kpiRow">
+        <div class="skeleton" style="height:90px;border-radius:16px;"></div>
+        <div class="skeleton" style="height:90px;border-radius:16px;"></div>
+        <div class="skeleton" style="height:90px;border-radius:16px;"></div>
+        <div class="skeleton" style="height:90px;border-radius:16px;"></div>
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-row">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">YIELD TREND — 30 DAYS</div>
+            <div class="card-badge">REAL-TIME</div>
+          </div>
+          <div id="trendChart" style="height:200px;"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">PASS / FAIL RATIO</div>
+          </div>
+          <div id="pieChart" style="height:200px;"></div>
+        </div>
+      </div>
+
+      <!-- Station Cards -->
+      <div class="section-header">
+        <div class="section-title">STATION STATUS</div>
+        <div class="section-count" id="stationCount">Loading...</div>
+      </div>
+      <div class="station-grid" id="stationGrid">
+        <div class="loading-grid">
+          <div class="skeleton"></div><div class="skeleton"></div>
+          <div class="skeleton"></div><div class="skeleton"></div>
+          <div class="skeleton"></div><div class="skeleton"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ PAGE: STATION DETAIL ═══════════ -->
+    <div class="page" id="page-station">
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header">
+          <div class="card-title">SELECT STATION</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;" id="stationPills"></div>
+      </div>
+      <div id="stationDetail">
+        <div style="text-align:center;padding:60px;color:var(--text3);">
+          เลือก Station เพื่อดูรายละเอียด
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ PAGE: SERIAL DETAIL ═══════════ -->
+    <div class="page" id="page-serial">
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header">
+          <div class="card-title">SEARCH SERIAL NUMBER</div>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <input id="snInput" class="form-input" placeholder="พิมพ์ Serial No..." style="max-width:340px;" />
+          <button class="btn-filter" onclick="searchSerial()">ค้นหา</button>
+        </div>
+      </div>
+      <div id="serialDetail"></div>
+    </div>
+
+    <!-- ═══════════ PAGE: CPK ═══════════ -->
+    <div class="page" id="page-cpk">
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header"><div class="card-title">CpK ANALYSIS</div></div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <select id="cpkStation" class="form-input" style="max-width:240px;">
+            <option value="">— เลือก Station —</option>
+          </select>
+          <input type="date" id="cpkFrom" class="form-input" style="max-width:160px;" />
+          <input type="date" id="cpkTo"   class="form-input" style="max-width:160px;" />
+          <button class="btn-filter" onclick="loadCpk()">คำนวณ</button>
+        </div>
+      </div>
+      <div id="cpkResult"></div>
+    </div>
+
+    <!-- ═══════════ PAGE: ALERTS ═══════════ -->
+    <div class="page" id="page-alerts">
+      <div class="section-header" style="margin-bottom:16px;">
+        <div class="section-title">ACTIVE ALERTS</div>
+        <button class="btn-filter" onclick="loadAlerts()">Refresh</button>
+      </div>
+      <div id="alertList"><div class="spinner"></div></div>
+    </div>
+
+    <!-- ═══════════ PAGE: SETTINGS ═══════════ -->
+    <div class="page" id="page-settings">
+      <div class="settings-grid">
+        <!-- Yield Targets -->
+        <div class="settings-section">
+          <div class="settings-section-title">⚡ Yield Targets</div>
+          <div class="form-row">
+            <label class="form-label">Global Target (%)</label>
+            <input id="globalTarget" type="number" class="form-input" min="0" max="100" value="95" />
+          </div>
+          <div class="form-label" style="margin-bottom:8px;">Station Targets</div>
+          <div class="station-targets" id="stationTargets"></div>
+          <button class="btn-save" onclick="saveTargets()">💾 Save Targets</button>
+          <div class="save-ok" id="saveTargetOk">✅ บันทึกแล้ว</div>
+        </div>
+        <!-- Email Settings -->
+        <div class="settings-section">
+          <div class="settings-section-title">✉️ Email Alert (Outlook)</div>
+          <div class="form-row">
+            <label class="form-label">SMTP User (Email ผู้ส่ง)</label>
+            <input id="smtpUser" class="form-input" placeholder="your@company.com" />
+          </div>
+          <div class="form-row">
+            <label class="form-label">SMTP Password</label>
+            <input id="smtpPass" type="password" class="form-input" placeholder="••••••••" />
+          </div>
+          <div class="form-row">
+            <label class="form-label">ผู้รับ Alert (คั่นด้วย ;)</label>
+            <input id="alertEmails" class="form-input" placeholder="eng@co.com;mgr@co.com" />
+          </div>
+          <div class="form-row">
+            <label class="form-label">Cooldown (นาที)</label>
+            <input id="cooldown" type="number" class="form-input" value="30" />
+          </div>
+          <div class="form-row">
+            <label class="form-label">CpK Alert Threshold</label>
+            <input id="cpkThreshold" type="number" class="form-input" value="1.00" step="0.01" />
+          </div>
+          <button class="btn-save" onclick="saveEmailSettings()">💾 Save Email Settings</button>
+          <div class="save-ok" id="saveEmailOk">✅ บันทึกแล้ว</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end content -->
+</main>
+
+<!-- ═══ STATION MODAL ═══ -->
+<div class="modal-overlay" id="stationModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="stationModalTitle">Station Detail</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn-export" id="cpkExportBtn">📥 Export CpK Excel</button>
+        <div class="modal-close" onclick="closeModal('stationModal')">✕</div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="tabs">
+        <div class="tab active" data-tab="trend">📈 Trend</div>
+        <div class="tab" data-tab="pareto">📊 Top FAIL</div>
+        <div class="tab" data-tab="rows">📋 Records</div>
+        <div class="tab" data-tab="cpktab">∿ CpK</div>
+      </div>
+      <div class="tab-content active" id="tab-trend"><div id="modalTrendChart" style="height:220px;"></div></div>
+      <div class="tab-content" id="tab-pareto"><div id="modalParetoChart" style="height:220px;"></div></div>
+      <div class="tab-content" id="tab-rows">
+        <div id="modalRows"></div>
+        <div class="pagination" id="modalPagination"></div>
+      </div>
+      <div class="tab-content" id="tab-cpktab"><div id="modalCpkContent"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SERIAL MODAL ═══ -->
+<div class="modal-overlay" id="serialModal">
+  <div class="modal" style="max-width:900px;">
+    <div class="modal-header">
+      <div class="modal-title" id="serialModalTitle">Serial Detail</div>
+      <div class="modal-close" onclick="closeModal('serialModal')">✕</div>
+    </div>
+    <div class="modal-body">
+      <div id="serialInfo" style="margin-bottom:16px;"></div>
+      <div id="serialSteps"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════════ */
+const API = 'http://localhost:8000';  // ← แก้เป็น IP Backend จริง
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let state = {
+  dateFrom: '',
+  dateTo:   '',
+  stations: [],
+  currentStation: '',
+  currentPage: 1,
+  trendChart: null,
+  pieChart:   null,
+};
+
+/* ═══════════════════════════════════════════
+   CLOCK
+═══════════════════════════════════════════ */
+setInterval(() => {
+  document.getElementById('clock').textContent =
+    new Date().toLocaleTimeString('th-TH', { hour12: false });
+}, 1000);
+
+/* ═══════════════════════════════════════════
+   THEME TOGGLE
+═══════════════════════════════════════════ */
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeIcon').textContent  = isDark ? '🌙' : '☀️';
+  document.getElementById('themeLabel').textContent = isDark ? 'Dark Mode' : 'Light Mode';
+  // Re-render charts on theme change
+  if (state.trendChart) state.trendChart.dispose();
+  if (state.pieChart)   state.pieChart.dispose();
+  state.trendChart = null;
+  state.pieChart   = null;
+  loadOverview();
+}
+
+/* ═══════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════ */
+const pageTitles = {
+  overview: ['FACTORY OVERVIEW', 'TE-CDBU1 Production Line — Real-time'],
+  station:  ['STATION DETAIL', 'เลือก Station เพื่อดูรายละเอียด'],
+  serial:   ['SERIAL DETAIL', 'ค้นหาด้วย Serial Number'],
+  cpk:      ['CpK ANALYSIS', 'คำนวณ Process Capability Index'],
+  alerts:   ['ACTIVE ALERTS', 'การแจ้งเตือน Yield และ CpK'],
+  settings: ['SETTINGS', 'ตั้งค่า Target และ Email Alert'],
+};
+
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const page = item.dataset.page;
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    item.classList.add('active');
+    document.getElementById('page-' + page).classList.add('active');
+    const [t, s] = pageTitles[page] || ['', ''];
+    document.getElementById('pageTitle').textContent    = t;
+    document.getElementById('pageSubtitle').textContent = s;
+    if (page === 'alerts')   loadAlerts();
+    if (page === 'settings') loadSettings();
+  });
+});
+
+/* ═══════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════ */
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) closeModal(el.id); });
+});
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const group = tab.closest('.modal-body') || tab.closest('.page');
+    group.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const target = tab.dataset.tab;
+    group.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    const el = document.getElementById('tab-' + target);
+    if (el) el.classList.add('active');
+  });
+});
+
+/* ═══════════════════════════════════════════
+   FILTER
+═══════════════════════════════════════════ */
+function applyFilter() {
+  state.dateFrom = document.getElementById('dateFrom').value;
+  state.dateTo   = document.getElementById('dateTo').value;
+  loadOverview();
+}
+
+function dateParams() {
+  let p = '';
+  if (state.dateFrom) p += `&date_from=${state.dateFrom}`;
+  if (state.dateTo)   p += `&date_to=${state.dateTo}`;
+  return p;
+}
+
+/* ═══════════════════════════════════════════
+   API HELPER
+═══════════════════════════════════════════ */
+async function apiFetch(path) {
+  try {
+    const res = await fetch(API + path);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (e) {
+    console.error('API Error:', e);
+    return null;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   ECHARTS THEME HELPER
+═══════════════════════════════════════════ */
+function isDark() {
+  return document.documentElement.getAttribute('data-theme') === 'dark';
+}
+function chartColors() {
+  return {
+    bg:    isDark() ? '#111827' : '#ffffff',
+    text:  isDark() ? '#94a3b8' : '#64748b',
+    grid:  isDark() ? '#1a2235' : '#f1f5f9',
+    line:  isDark() ? '#2a3550' : '#e2e8f0',
+  };
+}
+
+/* ═══════════════════════════════════════════
+   OVERVIEW PAGE
+═══════════════════════════════════════════ */
+async function loadOverview() {
+  await Promise.all([loadKPI(), loadStations()]);
+  loadAlertBanner();
+}
+
+async function loadKPI() {
+  const data = await apiFetch(`/api/summary?_=${Date.now()}${dateParams()}`);
+  if (!data) return;
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="kpi-card teal">
+      <div class="kpi-label">Yield Rate</div>
+      <div class="kpi-value teal">${data.yield}%</div>
+      <div class="kpi-sub">ช่วงเวลาที่เลือก</div>
+      <span class="kpi-icon">⚡</span>
+    </div>
+    <div class="kpi-card blue">
+      <div class="kpi-label">Total Tests</div>
+      <div class="kpi-value blue">${data.total.toLocaleString()}</div>
+      <div class="kpi-sub">ชิ้นงานทั้งหมด</div>
+      <span class="kpi-icon">◫</span>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">Pass</div>
+      <div class="kpi-value green">${data.pass.toLocaleString()}</div>
+      <div class="kpi-sub">ชิ้นงานผ่าน</div>
+      <span class="kpi-icon">✓</span>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">Fail</div>
+      <div class="kpi-value red">${data.fail.toLocaleString()}</div>
+      <div class="kpi-sub">ชิ้นงานไม่ผ่าน</div>
+      <span class="kpi-icon">✕</span>
+    </div>
+  `;
+  renderPie(data.pass, data.fail);
+}
+
+async function loadStations() {
+  const data = await apiFetch(`/api/stations?_=${Date.now()}${dateParams()}`);
+  if (!data) return;
+  state.stations = data.stations;
+  const grid = document.getElementById('stationGrid');
+  document.getElementById('stationCount').textContent = `${data.stations.length} Stations`;
+
+  // Station Pills for Station Detail page
+  const pills = document.getElementById('stationPills');
+  const cpkSel = document.getElementById('cpkStation');
+  pills.innerHTML = '';
+  cpkSel.innerHTML = '<option value="">— เลือก Station —</option>';
+
+  grid.innerHTML = data.stations.map(s => {
+    const yClass = s.yield >= 95 ? 'ok' : s.yield >= 90 ? 'warn' : 'bad';
+    const isAlert = s.is_alert;
+    return `
+      <div class="station-card ${isAlert ? 'alert-card' : ''}" onclick="openStationModal('${s.station}')">
+        ${isAlert ? '<span class="station-alert-tag">⚠ ALERT</span>' : ''}
+        <div class="station-name">${s.station}</div>
+        <div class="yield-value ${yClass}">${s.yield}%</div>
+        <div class="station-stats">
+          <div class="stat-item"><span class="stat-num" style="color:var(--success)">${s.pass.toLocaleString()}</span>PASS</div>
+          <div class="stat-item"><span class="stat-num" style="color:var(--danger)">${s.fail.toLocaleString()}</span>FAIL</div>
+          <div class="stat-item"><span class="stat-num">${s.total.toLocaleString()}</span>TOTAL</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  data.stations.forEach(s => {
+    pills.innerHTML += `<button class="page-btn" onclick="openStationModal('${s.station}')" style="font-size:12px">${s.station}</button>`;
+    cpkSel.innerHTML += `<option value="${s.station}">${s.station}</option>`;
+    const tgtDiv = document.getElementById('stationTargets');
+    if (tgtDiv) {
+      // add if not already exists
+      if (!document.getElementById('tgt_' + s.station)) {
+        tgtDiv.innerHTML += `
+          <div class="target-row">
+            <span class="target-name">${s.station}</span>
+            <input id="tgt_${s.station}" class="target-input" type="number" min="0" max="100" value="${s.target}" />
+            <span style="font-size:11px;color:var(--text3)">%</span>
+          </div>`;
+      }
+    }
+  });
+
+  renderTrend(data.stations);
+}
+
+async function loadAlertBanner() {
+  const data = await apiFetch('/api/alerts');
+  if (!data || !data.alerts.length) {
+    document.getElementById('alertBanner').style.display = 'none';
+    return;
+  }
+  document.getElementById('alertBanner').style.display = 'flex';
+  document.getElementById('alertBadge').style.display  = 'inline';
+  document.getElementById('alertBadge').textContent = data.count;
+  document.getElementById('alertItems').innerHTML = data.alerts.map(a =>
+    `<span class="alert-chip">${a.station}: ${a.yield}% (Target ${a.target}%)</span>`
+  ).join('');
+}
+
+/* ═══════════════════════════════════════════
+   CHARTS
+═══════════════════════════════════════════ */
+function renderTrend(stations) {
+  const el = document.getElementById('trendChart');
+  if (!el) return;
+  if (state.trendChart) state.trendChart.dispose();
+  state.trendChart = echarts.init(el, null, { renderer: 'canvas' });
+  const c = chartColors();
+  // Mini trend per station using total as proxy
+  const names = stations.slice(0, 8).map(s => s.station.replace('_', '\n'));
+  const yields = stations.slice(0, 8).map(s => s.yield);
+  state.trendChart.setOption({
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'axis', backgroundColor: c.bg, borderColor: c.line, textStyle: { color: c.text, fontSize: 12 } },
+    grid: { left: 40, right: 10, top: 10, bottom: 50 },
+    xAxis: { type: 'category', data: names, axisLine: { lineStyle: { color: c.line } }, axisLabel: { color: c.text, fontSize: 10 } },
+    yAxis: { type: 'value', min: 80, max: 100, axisLine: { show: false }, axisLabel: { color: c.text, fontSize: 10, formatter: '{value}%' }, splitLine: { lineStyle: { color: c.line, type: 'dashed' } } },
+    series: [{
+      type: 'bar',
+      data: yields.map(v => ({ value: v, itemStyle: { color: v >= 95 ? '#22c55e' : v >= 90 ? '#f59e0b' : '#ef4444', borderRadius: [4,4,0,0] } })),
+      label: { show: true, position: 'top', formatter: '{c}%', fontSize: 10, color: c.text }
+    }]
+  });
+}
+
+function renderPie(pass, fail) {
+  const el = document.getElementById('pieChart');
+  if (!el) return;
+  if (state.pieChart) state.pieChart.dispose();
+  state.pieChart = echarts.init(el, null, { renderer: 'canvas' });
+  const c = chartColors();
+  state.pieChart.setOption({
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'item', backgroundColor: c.bg, borderColor: c.line, textStyle: { color: c.text } },
+    legend: { bottom: 0, textStyle: { color: c.text, fontSize: 11 } },
+    series: [{
+      type: 'pie', radius: ['45%', '70%'], center: ['50%', '45%'],
+      label: { show: true, fontSize: 12, color: c.text, formatter: '{d}%' },
+      data: [
+        { value: pass, name: 'PASS', itemStyle: { color: '#22c55e' } },
+        { value: fail, name: 'FAIL', itemStyle: { color: '#ef4444' } },
+      ]
+    }]
+  });
+}
+
+/* ═══════════════════════════════════════════
+   STATION MODAL (LAZY LOAD)
+═══════════════════════════════════════════ */
+async function openStationModal(station) {
+  state.currentStation = station;
+  state.currentPage = 1;
+  document.getElementById('stationModalTitle').textContent = `⬡ ${station}`;
+  document.getElementById('cpkExportBtn').onclick = () => exportCpkExcel(station);
+  openModal('stationModal');
+
+  // Reset tabs
+  document.querySelectorAll('#stationModal .tab').forEach((t,i) => t.classList.toggle('active', i===0));
+  document.querySelectorAll('#stationModal .tab-content').forEach((c,i) => c.classList.toggle('active', i===0));
+
+  document.getElementById('modalTrendChart').innerHTML = '<div class="spinner"></div>';
+  document.getElementById('modalParetoChart').innerHTML = '<div class="spinner"></div>';
+  document.getElementById('modalRows').innerHTML = '<div class="spinner"></div>';
+  document.getElementById('modalCpkContent').innerHTML = '<div class="spinner"></div>';
+
+  // Load detail & rows in parallel
+  const [detail, rows] = await Promise.all([
+    apiFetch(`/api/station/${encodeURIComponent(station)}${dateParams() ? '?' + dateParams().slice(1) : ''}`),
+    apiFetch(`/api/station/${encodeURIComponent(station)}/rows?page=1${dateParams()}`)
+  ]);
+
+  if (detail) {
+    renderModalTrend(detail.trend);
+    renderModalPareto(detail.pareto);
+  }
+  if (rows) renderModalRows(rows);
+
+  // Load CpK
+  const cpkData = await apiFetch(`/api/cpk/${encodeURIComponent(station)}${dateParams() ? '?' + dateParams().slice(1) : ''}`);
+  if (cpkData) renderModalCpk(cpkData.results);
+}
+
+function renderModalTrend(trend) {
+  const el = document.getElementById('modalTrendChart');
+  el.innerHTML = '';
+  const chart = echarts.init(el);
+  const c = chartColors();
+  const dates  = trend.map(r => r.date);
+  const passes = trend.map(r => r.pass);
+  const fails  = trend.map(r => r.fail);
+  const yields = trend.map(r => r.pass + r.fail > 0 ? +((r.pass / (r.pass + r.fail)) * 100).toFixed(1) : 0);
+  chart.setOption({
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'axis', backgroundColor: c.bg, borderColor: c.line, textStyle: { color: c.text, fontSize: 12 } },
+    legend: { data: ['Pass', 'Fail', 'Yield%'], textStyle: { color: c.text, fontSize: 11 }, top: 0 },
+    grid: { left: 40, right: 50, top: 30, bottom: 30 },
+    xAxis: { type: 'category', data: dates, axisLabel: { color: c.text, fontSize: 10 }, axisLine: { lineStyle: { color: c.line } } },
+    yAxis: [
+      { type: 'value', name: 'Count', axisLabel: { color: c.text, fontSize: 10 }, splitLine: { lineStyle: { color: c.line, type: 'dashed' } } },
+      { type: 'value', name: 'Yield%', min: 0, max: 100, axisLabel: { color: c.text, fontSize: 10, formatter: '{value}%' } }
+    ],
+    series: [
+      { name: 'Pass', type: 'bar', stack: 'total', data: passes, itemStyle: { color: '#22c55e' } },
+      { name: 'Fail', type: 'bar', stack: 'total', data: fails,  itemStyle: { color: '#ef4444' } },
+      { name: 'Yield%', type: 'line', yAxisIndex: 1, data: yields, smooth: true, symbol: 'circle', symbolSize: 5, lineStyle: { color: '#00d4aa', width: 2 }, itemStyle: { color: '#00d4aa' } }
+    ]
+  });
+}
+
+function renderModalPareto(pareto) {
+  const el = document.getElementById('modalParetoChart');
+  el.innerHTML = '';
+  if (!pareto.length) { el.innerHTML = '<div class="loading-msg">ไม่มีข้อมูล FAIL</div>'; return; }
+  const chart = echarts.init(el);
+  const c = chartColors();
+  chart.setOption({
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'axis', backgroundColor: c.bg, borderColor: c.line, textStyle: { color: c.text, fontSize: 11 } },
+    grid: { left: 10, right: 10, top: 10, bottom: 80, containLabel: true },
+    xAxis: { type: 'category', data: pareto.map(r => r.step), axisLabel: { color: c.text, fontSize: 9, rotate: 30 }, axisLine: { lineStyle: { color: c.line } } },
+    yAxis: { type: 'value', axisLabel: { color: c.text, fontSize: 10 }, splitLine: { lineStyle: { color: c.line, type: 'dashed' } } },
+    series: [{ type: 'bar', data: pareto.map(r => r.count), itemStyle: { color: '#ef4444', borderRadius: [4,4,0,0] }, label: { show: true, position: 'top', fontSize: 10, color: c.text } }]
+  });
+}
+
+async function loadModalPage(page) {
+  state.currentPage = page;
+  document.getElementById('modalRows').innerHTML = '<div class="spinner"></div>';
+  const rows = await apiFetch(`/api/station/${encodeURIComponent(state.currentStation)}/rows?page=${page}${dateParams()}`);
+  if (rows) renderModalRows(rows);
+}
+
+function renderModalRows(data) {
+  const { rows, total, page, total_pages } = data;
+  document.getElementById('modalRows').innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Serial No</th><th>Model</th><th>Result</th>
+          <th>Total Steps</th><th>Pass</th><th>Fail</th>
+          <th>Start Time</th><th>Elapsed</th>
+        </tr></thead>
+        <tbody>
+          ${rows.map(r => `
+            <tr>
+              <td><a class="sn-link" onclick="openSerialModal('${r.serial_no}')">${r.serial_no}</a></td>
+              <td>${r.model || '-'}</td>
+              <td><span class="badge ${r.result === 'PASS' ? 'pass' : 'fail'}">${r.result}</span></td>
+              <td style="text-align:center">${r.total_steps || 0}</td>
+              <td style="text-align:center;color:var(--success)">${r.pass_steps || 0}</td>
+              <td style="text-align:center;color:var(--danger)">${r.fail_steps || 0}</td>
+              <td>${r.start_time || '-'}</td>
+              <td>${r.elapsed || '-'}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+
+  // Pagination
+  const pgEl = document.getElementById('modalPagination');
+  const maxBtn = 7;
+  let btns = '';
+  for (let i = 1; i <= Math.min(total_pages, maxBtn); i++) {
+    btns += `<button class="page-btn ${i === page ? 'active' : ''}" onclick="loadModalPage(${i})">${i}</button>`;
+  }
+  if (total_pages > maxBtn) btns += `<span style="color:var(--text3);font-size:11px;padding:0 6px;">... ${total_pages}</span>`;
+  pgEl.innerHTML = `<span>${total.toLocaleString()} records</span><div class="page-btns">${btns}</div>`;
+}
+
+function renderModalCpk(results) {
+  const el = document.getElementById('modalCpkContent');
+  if (!results.length) { el.innerHTML = '<div class="loading-msg" style="padding:30px">ไม่มีข้อมูล Step ที่มี USL/LSL</div>'; return; }
+  const statusClass = s => ({ 'ดีมาก': 'cpk-excellent', 'ดี': 'cpk-good', 'เฝ้าระวัง': 'cpk-watch', 'ต้องแก้ไข': 'cpk-bad' }[s] || '');
+  el.innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>#</th><th>Step Name</th><th>N</th><th>Mean</th><th>Std Dev</th>
+          <th>LSL</th><th>USL</th><th>Cp</th><th>CpK</th><th>Status</th>
+        </tr></thead>
+        <tbody>
+          ${results.map((r,i) => `
+            <tr>
+              <td>${i+1}</td>
+              <td style="font-size:11px;max-width:250px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${r.step_name}">${r.step_name}</td>
+              <td style="text-align:center">${r.n}</td>
+              <td>${r.mean.toFixed(4)}</td>
+              <td>${r.std.toFixed(5)}</td>
+              <td>${r.lsl}</td>
+              <td>${r.usl}</td>
+              <td>${r.cp.toFixed(3)}</td>
+              <td><span class="cpk-val ${statusClass(r.status)}">${r.cpk.toFixed(3)}</span></td>
+              <td><span class="cpk-status ${statusClass(r.status)}">${r.status}</span></td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function exportCpkExcel(station) {
+  let url = `${API}/api/cpk/${encodeURIComponent(station)}/export`;
+  const params = dateParams();
+  if (params) url += '?' + params.slice(1);
+  window.location.href = url;
+}
+
+/* ═══════════════════════════════════════════
+   SERIAL MODAL (LAZY LOAD)
+═══════════════════════════════════════════ */
+async function openSerialModal(sn) {
+  document.getElementById('serialModalTitle').textContent = `≡ ${sn}`;
+  document.getElementById('serialInfo').innerHTML  = '<div class="spinner"></div>';
+  document.getElementById('serialSteps').innerHTML = '';
+  openModal('serialModal');
+
+  const data = await apiFetch(`/api/serial/${encodeURIComponent(sn)}`);
+  if (!data || !data.header) {
+    document.getElementById('serialInfo').innerHTML = '<div class="loading-msg">ไม่พบข้อมูล</div>';
+    return;
+  }
+  const h = data.header;
+  const resultColor = h.result === 'PASS' ? 'var(--success)' : 'var(--danger)';
+  document.getElementById('serialInfo').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;">
+      ${[['Serial No', h.serial_no],['Model', h.model],['Station', h.station],['Tester', h.tester],
+         ['Start Time', h.start_time],['Elapsed', h.elapsed],['Work Order', h.work_order],['Line', h.line]
+        ].map(([l,v]) => `<div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;">
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">${l}</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text)">${v || '-'}</div>
+        </div>`).join('')}
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:14px;">
+      <div style="background:rgba(0,212,170,0.08);border:1px solid var(--accent);border-radius:8px;padding:10px 16px;text-align:center;min-width:80px;">
+        <div style="font-family:var(--font-head);font-size:28px;font-weight:700;color:${resultColor}">${h.result}</div>
+        <div style="font-size:10px;color:var(--text3)">RESULT</div>
+      </div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 16px;text-align:center;min-width:70px;">
+        <div style="font-family:var(--font-head);font-size:22px;font-weight:700">${h.total_steps}</div>
+        <div style="font-size:10px;color:var(--text3)">TOTAL</div>
+      </div>
+      <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);border-radius:8px;padding:10px 16px;text-align:center;min-width:70px;">
+        <div style="font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--success)">${h.pass_steps}</div>
+        <div style="font-size:10px;color:var(--text3)">PASS</div>
+      </div>
+      <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:10px 16px;text-align:center;min-width:70px;">
+        <div style="font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--danger)">${h.fail_steps}</div>
+        <div style="font-size:10px;color:var(--text3)">FAIL</div>
+      </div>
+    </div>`;
+
+  // Steps Table
+  document.getElementById('serialSteps').innerHTML = `
+    <div class="table-wrap" style="max-height:380px;overflow-y:auto;">
+      <table>
+        <thead><tr>
+          <th>#</th><th>Step Name</th><th>Result</th>
+          <th>Value</th><th>Unit</th><th>LSL</th><th>USL</th><th>Raw Log</th>
+        </tr></thead>
+        <tbody>
+          ${data.steps.map(s => `
+            <tr style="${s.result === 'FAIL' ? 'background:rgba(239,68,68,0.05)' : ''}">
+              <td style="text-align:center;font-family:var(--font-head)">${s.step_no || '-'}</td>
+              <td style="font-size:11px;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${s.step_name}">${s.step_name}</td>
+              <td><span class="badge ${s.result === 'PASS' ? 'pass' : 'fail'}">${s.result}</span></td>
+              <td style="font-family:var(--font-head);font-size:13px">${s.value != null ? s.value.toFixed(4) : '-'}</td>
+              <td>${s.unit || '-'}</td>
+              <td>${s.lsl != null ? s.lsl : '-'}</td>
+              <td>${s.usl != null ? s.usl : '-'}</td>
+              <td>${s.raw_block ? `<button class="page-btn" style="font-size:10px;padding:3px 8px" onclick="showRaw(this, \`${btoa(unescape(encodeURIComponent(s.raw_block.slice(0,3000))))}\`)">View</button>` : '-'}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function showRaw(btn, b64) {
+  const raw = decodeURIComponent(escape(atob(b64)));
+  const div = document.createElement('div');
+  div.className = 'raw-log';
+  div.style.marginTop = '8px';
+  div.textContent = raw;
+  const row = btn.closest('tr');
+  const existing = row.nextElementSibling;
+  if (existing && existing.classList.contains('raw-row')) { existing.remove(); btn.textContent = 'View'; return; }
+  const tr = document.createElement('tr');
+  tr.className = 'raw-row';
+  tr.innerHTML = `<td colspan="8" style="padding:0;">${div.outerHTML}</td>`;
+  row.after(tr);
+  btn.textContent = 'Close';
+}
+
+/* ═══════════════════════════════════════════
+   SERIAL SEARCH
+═══════════════════════════════════════════ */
+function searchSerial() {
+  const sn = document.getElementById('snInput').value.trim();
+  if (!sn) return;
+  openSerialModal(sn);
+}
+document.getElementById('snInput').addEventListener('keydown', e => { if (e.key === 'Enter') searchSerial(); });
+
+/* ═══════════════════════════════════════════
+   CpK PAGE
+═══════════════════════════════════════════ */
+async function loadCpk() {
+  const station = document.getElementById('cpkStation').value;
+  if (!station) return;
+  const from = document.getElementById('cpkFrom').value;
+  const to   = document.getElementById('cpkTo').value;
+  let url = `/api/cpk/${encodeURIComponent(station)}`;
+  const params = [];
+  if (from) params.push(`date_from=${from}`);
+  if (to)   params.push(`date_to=${to}`);
+  if (params.length) url += '?' + params.join('&');
+
+  document.getElementById('cpkResult').innerHTML = '<div class="spinner"></div>';
+  const data = await apiFetch(url);
+  if (!data) { document.getElementById('cpkResult').innerHTML = '<div class="loading-msg">โหลดไม่สำเร็จ</div>'; return; }
+
+  const statusClass = s => ({ 'ดีมาก': 'cpk-excellent', 'ดี': 'cpk-good', 'เฝ้าระวัง': 'cpk-watch', 'ต้องแก้ไข': 'cpk-bad' }[s] || '');
+  document.getElementById('cpkResult').innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">CpK — ${station} (${data.count} Steps)</div>
+        <button class="btn-export" onclick="window.location.href='${API}/api/cpk/${encodeURIComponent(station)}/export${params.length ? '?'+params.join('&') : ''}'">
+          📥 Export Excel
+        </button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>#</th><th>Step Name</th><th>N</th><th>Mean</th><th>Std</th>
+            <th>Min</th><th>Max</th><th>LSL</th><th>USL</th><th>Cp</th><th>Cpu</th><th>Cpl</th><th>CpK</th><th>Status</th>
+          </tr></thead>
+          <tbody>
+            ${data.results.map((r,i) => `
+              <tr>
+                <td>${i+1}</td>
+                <td style="font-size:11px;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${r.step_name}">${r.step_name}</td>
+                <td style="text-align:center">${r.n}</td>
+                <td>${r.mean.toFixed(4)}</td>
+                <td>${r.std.toFixed(5)}</td>
+                <td>${r.min_val.toFixed(4)}</td>
+                <td>${r.max_val.toFixed(4)}</td>
+                <td>${r.lsl}</td><td>${r.usl}</td>
+                <td>${r.cp.toFixed(3)}</td>
+                <td>${r.cpu.toFixed(3)}</td>
+                <td>${r.cpl.toFixed(3)}</td>
+                <td><span class="cpk-val ${statusClass(r.status)}">${r.cpk.toFixed(3)}</span></td>
+                <td><span class="cpk-status ${statusClass(r.status)}">${r.status}</span></td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+/* ═══════════════════════════════════════════
+   ALERTS PAGE
+═══════════════════════════════════════════ */
+async function loadAlerts() {
+  const data = await apiFetch('/api/alerts');
+  const el = document.getElementById('alertList');
+  if (!data || !data.alerts.length) {
+    el.innerHTML = `<div style="text-align:center;padding:60px;color:var(--success);font-size:15px;">✅ ไม่มี Alert ตอนนี้ — ทุก Station ผ่าน Target</div>`;
+    return;
+  }
+  el.innerHTML = `<div class="alert-list">
+    ${data.alerts.map(a => `
+      <div class="alert-item">
+        <div>
+          <div class="alert-stn">${a.station}</div>
+          <div style="font-size:11px;color:var(--text3)">Total: ${a.total} | Pass: ${a.pass} | Fail: ${a.fail}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="alert-yld">${a.yield}%</div>
+          <div class="alert-target">Target: ${a.target}%</div>
+          <div style="font-size:11px;color:var(--danger);font-weight:700">Δ ${(a.yield - a.target).toFixed(1)}%</div>
+        </div>
+      </div>`).join('')}
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════
+   SETTINGS PAGE
+═══════════════════════════════════════════ */
+async function loadSettings() {
+  const data = await apiFetch('/api/settings');
+  if (!data) return;
+  if (data.yield_target_ALL) document.getElementById('globalTarget').value = data.yield_target_ALL;
+  if (data.alert_emails)     document.getElementById('alertEmails').value  = data.alert_emails;
+  if (data.alert_cooldown_minutes) document.getElementById('cooldown').value = data.alert_cooldown_minutes;
+  if (data.cpk_alert_threshold)   document.getElementById('cpkThreshold').value = data.cpk_alert_threshold;
+  if (data.smtp_user)        document.getElementById('smtpUser').value = data.smtp_user;
+}
+
+async function saveTargets() {
+  const settings = [{ key: 'yield_target_ALL', value: document.getElementById('globalTarget').value, description: 'Yield Target รวม' }];
+  state.stations.forEach(s => {
+    const el = document.getElementById('tgt_' + s.station);
+    if (el) settings.push({ key: `yield_target_${s.station}`, value: el.value, description: `Target ${s.station}` });
+  });
+  const res = await fetch(`${API}/api/settings`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ settings })
+  });
+  if (res.ok) { document.getElementById('saveTargetOk').style.display = 'block'; setTimeout(() => document.getElementById('saveTargetOk').style.display = 'none', 3000); }
+}
+
+async function saveEmailSettings() {
+  const settings = [
+    { key: 'smtp_user',              value: document.getElementById('smtpUser').value,    description: 'SMTP User' },
+    { key: 'smtp_password',          value: document.getElementById('smtpPass').value,    description: 'SMTP Password' },
+    { key: 'alert_emails',           value: document.getElementById('alertEmails').value, description: 'Alert Recipients' },
+    { key: 'alert_cooldown_minutes', value: document.getElementById('cooldown').value,    description: 'Cooldown' },
+    { key: 'cpk_alert_threshold',    value: document.getElementById('cpkThreshold').value,description: 'CpK Threshold' },
+  ];
+  const res = await fetch(`${API}/api/settings`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ settings })
+  });
+  if (res.ok) { document.getElementById('saveEmailOk').style.display = 'block'; setTimeout(() => document.getElementById('saveEmailOk').style.display = 'none', 3000); }
+}
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+// Set default date range (today)
+const today = new Date().toISOString().slice(0, 10);
+const month = new Date(); month.setDate(1);
+document.getElementById('dateFrom').value = month.toISOString().slice(0,10);
+document.getElementById('dateTo').value   = today;
+state.dateFrom = document.getElementById('dateFrom').value;
+state.dateTo   = today;
+
+loadOverview();
+
+// Auto refresh KPI every 30s
+setInterval(() => {
+  if (document.querySelector('.nav-item.active')?.dataset.page === 'overview') {
+    loadKPI();
+    loadAlertBanner();
+  }
+}, 30000);
+</script>
+</body>
+</html>
