@@ -1,0 +1,61 @@
+ครับ เข้าใจแล้ว จะสร้างเป็น FastAPI + HTML Web App เต็มรูปแบบ ครบทั้ง SQL schema + backend + frontend
+
+ขอสรุป scope ก่อน build:
+
+
+
+* Equipment fields: Tag ID, Asset Number (กําหนดเอง), ชื่อ, Serial No., Line, Station, Computer Name, Last Cal Date, Next Cal Due Date
+
+* Alert: Dashboard color (แดง/เหลือง/เขียว) + Email แจ้งเตือนล่วงหน้า
+
+* Feature หลัก: ผูก Equipment กับ Computer Name → ถ้าย้าย computer จะตรวจจับได้, Query by asset/line/station/computer
+
+Ran 4 commands, created 4 files, viewed a file
+
+Ran 4 commands, created 4 files, viewed a file
+
+ได้ครบแล้วครับ ทั้ง 4 ไฟล์พร้อม ZIP รวม สรุปสิ่งที่สร้าง:
+
+สิ่งที่ได้รับ
+
+`schema.sql` — SQL Server Database
+
+
+
+* 6 ตาราง: Lines, Stations, Equipment, EquipmentAssignments, CalibrationRecords, AlertConfig
+
+* 2 VIEW สําเร็จรูป:
+
+   * `vw_EquipmentStatus` — รวมทุกอย่างใน query เดียว (asset + line + station + computer + cal status)
+
+   * `vw_ComputerMismatch` — ตรวจจับอัตโนมัติว่า equipment ถูกย้ายไปเสียบ PC ที่ไม่ตรง
+
+`main.py` — FastAPI Backend
+
+endpoint ครบ: CRUD Equipment, Lines, Stations, Assignment ผูก PC, Calibration records, Dashboard query, Email alert
+
+`index.html` — Web Dashboard
+
+
+
+* Dashboard — summary card 4 status + ตารางกรองได้ (Line/Station/PC/Asset/Status)
+
+* Equipment — เพิ่ม/Assign/ดู History การย้าย
+
+* Station & Line — จัดการ + แก้ Computer Name per station
+
+* Calibration — บันทึกและดู history
+
+* PC Mismatch — หน้าเฉพาะแสดง equipment ที่ย้ายไปผิด PC
+
+* Settings — ตั้ง SMTP + Email + จํานวนวันล่วงหน้า
+
+การเพิ่ม feature อะไรเกี่ยวกับ Asset ครับ เช่น:
+
+
+
+* Import จาก Excel (bulk upload หลายรายการพร้อมกัน)
+
+* Asset Type / Category (จัดกลุ่ม equipment)
+
+* QR Code สําหรับแต่ละ asset
